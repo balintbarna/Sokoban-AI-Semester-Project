@@ -49,8 +49,8 @@ while True:
 	diff = leftLight - rightLight
 	# positive diff means turn left
 	modifier = 0.2
-	leftSpeed = BASE_SPEED - diff * modifier
-	rightSpeed = BASE_SPEED + diff * modifier
+	leftSpeed = BASE_SPEED + diff * modifier
+	rightSpeed = BASE_SPEED - diff * modifier
 	mtr.setDutyLR(leftSpeed, rightSpeed)
 	print(diff)
 
