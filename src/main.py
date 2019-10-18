@@ -6,6 +6,7 @@ from time import sleep
 import driver.color_sensor as clr
 import driver.motor as mtr
 import driver.touch as touch
+import driver.gyro as gyro
 
 import signal
 
