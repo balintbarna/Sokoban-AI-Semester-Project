@@ -26,11 +26,15 @@ def setDutyLR(dutyL, dutyR):
     left.duty_cycle_sp = dutyL
     right.duty_cycle_sp = dutyR
 
+def power():
+    left.run_direct()
+    right.run_direct()
 
 left = ev3.LargeMotor(prt.leftMotorPort)
 right = ev3.LargeMotor(prt.rightMotorPort)
 assert left.connected, "Left motor is not connected"
 assert right.connected, "Right motor is not connected"
-left.run_direct()
-right.run_direct()
+
 forwards()
+power()
+stop()
