@@ -53,5 +53,7 @@ while True:
 	leftSpeed = BASE_SPEED + diff * modifier
 	rightSpeed = BASE_SPEED - diff * modifier
 	mtr.setDutyLR(leftSpeed, rightSpeed)
-	print(diff)
-
+	#print(diff)
+	#print('gyro val:'+str(gyro.sensor.value()))
+	#print('gyro ang:'+str(gyro.sensor.angle))
+	#print('gyro rate:'+str(gyro.sensor.rate))
