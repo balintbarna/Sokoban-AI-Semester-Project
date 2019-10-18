@@ -11,5 +11,5 @@ left = ev3.ColorSensor(prt.leftColorSensorPort)
 right = ev3.ColorSensor(prt.rightColorSensorPort)
 assert left.connected, "Left Color sensor is not connected"
 assert right.connected, "Right Color sensor is not conected"
-left.mode = 'RGB-RAW'
-right.mode = 'RGB-RAW'
+left.mode = left.MODE_RGB_RAW
+right.mode = right.MODE_RGB_RAW

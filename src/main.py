@@ -12,7 +12,7 @@ import signal
 
 def close():
 	ev3.Sound.beep().wait()
-	mtr.stop()
+	mtr.coast()
 	exit(0)
 
 btn = ev3.Button()
@@ -53,5 +53,7 @@ while True:
 	leftSpeed = BASE_SPEED + diff * modifier
 	rightSpeed = BASE_SPEED - diff * modifier
 	mtr.setDutyLR(leftSpeed, rightSpeed)
-	print(diff)
-
+	#print(diff)
+	#print('gyro val:'+str(gyro.sensor.value()))
+	#print('gyro ang:'+str(gyro.sensor.angle))
+	#print('gyro rate:'+str(gyro.sensor.rate))
