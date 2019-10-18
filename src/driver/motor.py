@@ -1,4 +1,5 @@
 import ev3dev.ev3 as ev3
+import driver.ports as prt
 
 def backwards():
     left.polarity = "inversed"
@@ -20,8 +21,8 @@ def setDutyLR(dutyL, dutyR):
     right.duty_cycle_sp = dutyR
 
 
-left = ev3.LargeMotor('outB')
-right = ev3.LargeMotor('outA')
+left = ev3.LargeMotor(prt.leftMotorPort)
+right = ev3.LargeMotor(prt.rightMotorPort)
 left.run_direct()
 right.run_direct()
 forwards()
