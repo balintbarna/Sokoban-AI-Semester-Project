@@ -2,12 +2,12 @@ import ev3dev.ev3 as ev3
 import driver.ports as prt
 
 def backwards():
-    left.polarity = "inversed"
-    right.polarity = "inversed"
+    left.polarity = left.POLARITY_INVERSED
+    right.polarity = right.POLARITY_INVERSED
 
 def forwards():
-    left.polarity = "normal"
-    right.polarity = "normal"
+    left.polarity = left.POLARITY_NORMAL
+    right.polarity = right.POLARITY_NORMAL
 
 def stop():
     setDuty(0)
