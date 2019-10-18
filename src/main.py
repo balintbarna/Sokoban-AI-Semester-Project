@@ -11,30 +11,20 @@ import driver.gyro as gyro
 import signal
 
 def close():
-	ev3.Sound.beep().wait()
 	mtr.coast()
+	print('Shutting down gracefully')
+	ev3.Sound.beep().wait()
 	exit(0)
 
-btn = ev3.Button()
-
-
-THRESHOLD_LEFT = 30 
-THRESHOLD_RIGHT = 350
-
-BASE_SPEED = 30
-TURN_SPEED = 80
-
-
 def signal_handler(sig, frame):
-	print('Shutting down gracefully')
 	close()
 
 signal.signal(signal.SIGINT, signal_handler)
 print('Press Ctrl+C to exit')
 
-mtr.setDuty(BASE_SPEED)
-while True:
-	
+btn = ev3.Button()
+
+def check_exit_condition():
 	tou_val = touch.get()
 
 	if tou_val > 0:
@@ -43,8 +33,10 @@ while True:
 	if btn.any():
 		close()
 
+BASE_SPEED = 30
+TURN_SPEED = 80
 
-
+def control_main():
 	leftLight = clr.getLeft()
 	rightLight = clr.getRight()
 	diff = leftLight - rightLight
@@ -54,6 +46,9 @@ while True:
 	rightSpeed = BASE_SPEED - diff * modifier
 	mtr.setDutyLR(leftSpeed, rightSpeed)
 	#print(diff)
+
+while True:
 	#print('gyro val:'+str(gyro.sensor.value()))
 	#print('gyro ang:'+str(gyro.sensor.angle))
 	#print('gyro rate:'+str(gyro.sensor.rate))
+	control_main()
