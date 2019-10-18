@@ -1,6 +1,12 @@
 import ev3dev.ev3 as ev3
 import driver.ports as prt
 
+def coast():
+    left.stop_action = left.STOP_ACTION_COAST
+    right.stop_action = right.STOP_ACTION_COAST
+    left.stop()
+    right.stop()
+
 def backwards():
     left.polarity = left.POLARITY_INVERSED
     right.polarity = right.POLARITY_INVERSED

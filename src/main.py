@@ -12,7 +12,7 @@ import signal
 
 def close():
 	ev3.Sound.beep().wait()
-	mtr.stop()
+	mtr.coast()
 	exit(0)
 
 btn = ev3.Button()
