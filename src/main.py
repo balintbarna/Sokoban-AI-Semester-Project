@@ -45,9 +45,13 @@ def control_main():
 	rightLight = clr.getRight()
 	diff = leftLight - rightLight
 	# positive diff means turn left
+	# setpoint is 0
+	# error is setpoint - input
+	# pid output is opposite sign of input
+	# positive val means turn right
 	val = pid(diff)
-	leftSpeed = BASE_SPEED + val
-	rightSpeed = BASE_SPEED - val
+	leftSpeed = BASE_SPEED - val
+	rightSpeed = BASE_SPEED + val
 	mtr.setDutyLR(leftSpeed, rightSpeed)
 	#print(diff)
 
