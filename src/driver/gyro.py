@@ -6,9 +6,7 @@ assert sensor.connected, "Gyro is not connected"
 
 sensor.mode = 'GYRO-ANG'
 
-unit = sensor.units()
-print('gyro unit')
-print(unit)
+print('Gyro units: ' + sensor.units)
 
 offset = 0.0
 
