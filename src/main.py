@@ -1,14 +1,16 @@
 #!/usr/bin/python3.4
 
-import ev3dev.ev3 as ev3
 from time import sleep
+import signal
+
+import ev3dev.ev3 as ev3
 
 import driver.color_sensor as clr
 import driver.motor as mtr
 import driver.touch as touch
 import driver.gyro as gyro
 
-import signal
+from simple_pid import PID
 
 def close():
 	mtr.coast()
@@ -36,18 +38,21 @@ def check_exit_condition():
 BASE_SPEED = 30
 TURN_SPEED = 80
 
+pid = PID(0.1)
+
 def control_main():
 	leftLight = clr.getLeft()
 	rightLight = clr.getRight()
 	diff = leftLight - rightLight
 	# positive diff means turn left
-	modifier = 0.2
-	leftSpeed = BASE_SPEED + diff * modifier
-	rightSpeed = BASE_SPEED - diff * modifier
+	val = pid(diff)
+	leftSpeed = BASE_SPEED + val
+	rightSpeed = BASE_SPEED - val
 	mtr.setDutyLR(leftSpeed, rightSpeed)
 	#print(diff)
 
 while True:
+	check_exit_condition()
 	#print('gyro val:'+str(gyro.sensor.value()))
 	#print('gyro ang:'+str(gyro.sensor.angle))
 	#print('gyro rate:'+str(gyro.sensor.rate))
