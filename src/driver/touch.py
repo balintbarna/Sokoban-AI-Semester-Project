@@ -1,6 +1,7 @@
 import ev3dev.ev3 as ev3
+import driver.ports as prt
 
-sensor = ev3.TouchSensor('in3')
+sensor = ev3.TouchSensor(prt.touchPort)
 assert sensor.connected, "Button is not connected"
 
 def get():
