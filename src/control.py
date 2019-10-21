@@ -22,6 +22,10 @@ def line_follow():
     rightSpeed = BASE_SPEED + val
     mtr.setDutyLR(leftSpeed, rightSpeed)
 
+def go_until_intersection():
+    while(detect_intersection() == False):
+        line_follow()
+
 def turn(set_deg = 0):
     gyro.reset()
     pid_turn = PID(2.0, 0.0, 0.2, set_deg)
