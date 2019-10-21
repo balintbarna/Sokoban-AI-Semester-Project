@@ -58,7 +58,7 @@ def control_main():
 
 	prg.go_until_intersection()
 	mtr.stop()
-	ctrl.turn(90)
+	prg.turn(90)
 	mtr.stop()
 
 
