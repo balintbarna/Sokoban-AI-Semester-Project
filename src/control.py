@@ -24,11 +24,12 @@ def line_follow():
 
 def turn(set_deg = 0):
     gyro.reset()
-    pid_turn = PID(1.0, 0.0, 0.0, set_deg)
+    pid_turn = PID(2.0, 0.0, 0.2, set_deg)
     gyro_val = gyro.get()
-    while((gyro_val - set_deg) > 3):
+    while(abs(gyro_val - set_deg) > 5):
         val = pid_turn(gyro_val)
         mtr.setDutyLR(val, 0 - val)
+        gyro_val = gyro.get()
 
 def detect_intersection():
     leftLight = clr.getLeft()
