@@ -1,15 +1,14 @@
 import driver.color_sensor as clr
 import driver.motor as mtr
 import driver.gyro as gyro
+import constants as cnst
 
 from simple_pid import PID
 
 
 # MOVE STRAIGHT
 
-BASE_SPEED = 60
-line_pid = PID(0.2,0.0,0.02,0.0) # PID object for line follower
-
+line_pid = PID(cnst.LINE_PID_P, cnst.LINE_PID_I, cnst.LINE_PID_D, 0.0) # PID object for line follower
 
 def line_control():
     """
@@ -27,14 +26,14 @@ def line_control():
 	# pid output is opposite sign of input
 	# positive val means turn right
     val = line_pid(diff)
-    leftSpeed = BASE_SPEED - val
-    rightSpeed = BASE_SPEED + val
+    leftSpeed = cnst.BASE_SPEED - val
+    rightSpeed = cnst.BASE_SPEED + val
     mtr.setDutyLR(leftSpeed, rightSpeed)
 
 
 # TURNING
 
-turn_pid = PID(2.0, 0.0, 0.2, 0.0)
+turn_pid = PID(cnst.TURN_PID_P, cnst.TURN_PID_I, cnst.TURN_PID_D, 0.0)
 
 def turn_setup(set_deg = 0.0):
     """
@@ -70,7 +69,8 @@ def is_intersection():
     leftLight = clr.getLeft()
     rightLight = clr.getRight()
 
-    if(leftLight < 100 and rightLight < 100):
+    # both sensor inputs should be darker than lightest black
+    if(leftLight < cnst.BLACK_THRESHOLD_MAX and rightLight < cnst.BLACK_THRESHOLD_MAX):
         return True
     else:
         return False
@@ -83,5 +83,5 @@ def is_turn_finished():
     global turn_pid
     setp = turn_pid.setpoint
     actual = gyro.get()
-    finished = abs(actual - setp) < 8
+    finished = abs(actual - setp) < cnst.TURN_OK_ERROR_THRESHOLD
     return finished
