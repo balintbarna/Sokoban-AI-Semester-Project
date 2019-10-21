@@ -78,7 +78,4 @@ def control_main():
 # main loop
 while True:
 	check_exit_condition()
-	#print('gyro val:'+str(gyro.sensor.value()))
-	#print('gyro ang:'+str(gyro.sensor.angle))
-	#print('gyro rate:'+str(gyro.sensor.rate))
 	control_main()
