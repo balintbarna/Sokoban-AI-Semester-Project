@@ -22,6 +22,18 @@ def setDuty(duty):
     setDutyLR(duty, duty)
 
 def setDutyLR(dutyL, dutyR):
+    # this will limit duty values between -100 and 100
+    if(abs(dutyL) > 100 or abs(dutyR) > 100):
+        ratio = 0.0
+        if(abs(dutyL) > abs(dutyR)):
+            ratio = dutyL/100
+        else:
+            ratio = dutyR/100
+        
+        ratio = abs(ratio)
+        dutyL = dutyL / ratio
+        dutyR = dutyR / ratio
+    
     left.duty_cycle_sp = dutyL
     right.duty_cycle_sp = dutyR
 
