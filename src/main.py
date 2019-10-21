@@ -50,6 +50,15 @@ state = "default"
 
 # main control function used for testing right now, called from main loop
 def control_main():
+	"""
+	This is the control function called from the main loop.
+	It should not be blocking in the future, but right now it is.
+	Control functions are written so that they are not blocking, they return quickly,
+	therefore a state machine will need to be implemented to store current state and 
+	repeatedly call the non-blocking control functions.
+	Right now for testing, we just call the mini programs.
+	"""
+
 	# global state
 	# if(ctrl.detect_intersection()):
 	# 	state = "stop"
@@ -63,10 +72,7 @@ def control_main():
 	# 	ctrl.turn(90)
 	# 	state = "go-straight"
 
-	prg.go_until_intersection()
-	mtr.stop()
-	prg.turn(90)
-	mtr.stop()
+	prg.turn_right_every_time()
 
 
 # main loop

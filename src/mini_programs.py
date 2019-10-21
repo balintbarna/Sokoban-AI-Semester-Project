@@ -21,3 +21,12 @@ def turn(set_deg):
     ctrl.turn_setup(set_deg)
     while(ctrl.is_turn_finished() == False):
         ctrl.turn_control()
+
+def turn_right_every_time():
+    """
+    This is a mini program, where the robot will follow the line until an intersection, then turn right.
+    """
+    go_until_intersection()
+    mtr.stop()
+    turn(90)
+    mtr.stop()
