@@ -29,3 +29,12 @@ def turn(set_deg = 0):
     while((gyro_val - set_deg) > 3):
         val = pid_turn(gyro_val)
         mtr.setDutyLR(val, 0 - val)
+
+def detect_intersection():
+    leftLight = clr.getLeft()
+    rightLight = clr.getRight()
+
+    if(leftLight < 50 and rightLight < 50):
+        return True
+    else:
+        return False
