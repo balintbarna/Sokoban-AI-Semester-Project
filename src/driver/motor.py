@@ -1,34 +1,36 @@
 import ev3dev.ev3 as ev3
 import driver.ports as prt
 
-# this function stops control on the motors, lets them turn freely
 def coast():
+    """this function stops control on the motors, lets them turn freely"""
     left.stop_action = left.STOP_ACTION_COAST
     right.stop_action = right.STOP_ACTION_COAST
     left.stop()
     right.stop()
 
-# this inverts the motor controller polarity (not really useful as duty can be negative)
 def backwards():
+    """this inverts the motor controller polarity (not really useful as duty can be negative)"""
     left.polarity = left.POLARITY_INVERSED
     right.polarity = right.POLARITY_INVERSED
 
-# sets normal polarity for motor controller
 def forwards():
+    """sets normal polarity for motor controller"""
     left.polarity = left.POLARITY_NORMAL
     right.polarity = right.POLARITY_NORMAL
 
-# brake with the motors
 def stop():
+    """brake with the motors"""
     setDuty(0)
 
-# set voltage % for both motors, rarely used
 def setDuty(duty):
+    """set voltage % for both motors, rarely used"""
     setDutyLR(duty, duty)
 
-# set voltage % for motors separately, from -100 to 100
-# in case that abs(value) is bigger than 100, both values will be divided by the same number, so that the bigger abs(value) becomes 100
 def setDutyLR(dutyL, dutyR):
+    """
+    Set voltage % for motors separately, from -100 to 100. Negative means reversed polarity.
+    In case that abs(value) is bigger than 100, both values will be divided by the same number, so that the bigger abs(value) becomes 100.
+    """
     # this will limit duty values between -100 and 100
     if(abs(dutyL) > 100 or abs(dutyR) > 100):
         ratio = 0.0
@@ -47,7 +49,7 @@ def setDutyLR(dutyL, dutyR):
     right.duty_cycle_sp = dutyR
 
 def power():
-    # this powers on the motors after coast()
+    """this powers on the motors after coast()"""
     left.run_direct()
     right.run_direct()
 
