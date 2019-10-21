@@ -39,8 +39,16 @@ def check_exit_condition():
 
 #  LOGIC  ----------------------------------------
 
+state = "default"
+
 def control_main():
-	ctrl.line_follow()
+	global state
+	if(ctrl.detect_intersection()):
+		state = "stop"
+	if(state == "default"):
+		ctrl.line_follow()
+	if(state == "stop"):
+		mtr.stop()
 
 while True:
 	check_exit_condition()
