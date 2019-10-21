@@ -1,3 +1,6 @@
+# define sensor and motor connection ports in one place
+# these are used by the drivers
+
 leftColorSensorPort = 'in2'
 rightColorSensorPort = 'in3'
 
