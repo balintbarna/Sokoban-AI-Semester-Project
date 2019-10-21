@@ -57,5 +57,5 @@ def is_turn_finished():
     global turn_pid
     setp = turn_pid.setpoint
     actual = gyro.get()
-    finished = abs(actual - setp) < 5
+    finished = abs(actual - setp) < 8
     return finished
