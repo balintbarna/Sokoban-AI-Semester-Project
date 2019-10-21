@@ -34,7 +34,7 @@ def detect_intersection():
     leftLight = clr.getLeft()
     rightLight = clr.getRight()
 
-    if(leftLight < 50 and rightLight < 50):
+    if(leftLight < 100 and rightLight < 100):
         return True
     else:
         return False
