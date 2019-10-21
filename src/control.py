@@ -5,9 +5,9 @@ import driver.gyro as gyro
 from simple_pid import PID
 
 
-BASE_SPEED = 50
+BASE_SPEED = 60
 
-pid = PID(0.1) # PID object for line follower
+pid = PID(0.2,0.0,0.02) # PID object for line follower
 def line_follow():
     leftLight = clr.getLeft()
     rightLight = clr.getRight()
