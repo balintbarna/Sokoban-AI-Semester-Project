@@ -14,19 +14,19 @@ print('Gyro units: ' + sensor.units)
 # offset will be used to zero the angle value before turning
 offset = 0.0
 
-# get raw value as float from sensor
 def raw():
+    """get raw value as float from sensor"""
     return sensor.value() * 1.0 / pow(10, dec)
 
-# get offseted value, after zeroing
 def get():
+    """get offseted value, after zeroing"""
     return sensor.value() - offset
 
-# do the offseting/zeroing
 def reset():
+    """do the offseting/zeroing"""
     global offset
     offset = raw()
 
-# return the rotational velocity (derivation of angle)
 def velocity():
+    """return the rotational velocity (derivation of angle)"""
     return sensor.rate

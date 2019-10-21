@@ -1,11 +1,12 @@
 import ev3dev.ev3 as ev3
 import driver.ports as prt
 
-# convenience functions to get sensor values
 def getLeft():
+    """convenience functions to get sensor value"""
     return left.value()
 
 def getRight():
+    """convenience functions to get sensor value"""
     return right.value()
 
 # load, check connection, set mode
