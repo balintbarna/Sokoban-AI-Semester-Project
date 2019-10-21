@@ -5,9 +5,11 @@ import driver.gyro as gyro
 from simple_pid import PID
 
 
-BASE_SPEED = 60
+# MOVE STRAIGHT
 
-line_pid = PID(0.2,0.0,0.02) # PID object for line follower
+BASE_SPEED = 60
+line_pid = PID(0.2,0.0,0.02,0.0) # PID object for line follower
+
 def line_control():
     global line_pid
     leftLight = clr.getLeft()
@@ -23,14 +25,24 @@ def line_control():
     rightSpeed = BASE_SPEED + val
     mtr.setDutyLR(leftSpeed, rightSpeed)
 
-def turn(set_deg = 0):
+
+# TURNING
+
+turn_pid = PID(2.0, 0.0, 0.2, 0.0)
+
+def turn_setup(set_deg = 0.0):
+    global turn_pid
+    turn_pid.setpoint = set_deg
+    turn_pid.reset()
     gyro.reset()
-    pid_turn = PID(2.0, 0.0, 0.2, set_deg)
-    gyro_val = gyro.get()
-    while(abs(gyro_val - set_deg) > 5):
-        val = pid_turn(gyro_val)
-        mtr.setDutyLR(val, 0 - val)
-        gyro_val = gyro.get()
+
+def turn_control():
+    global turn_pid
+    val = turn_pid(gyro.get())
+    mtr.setDutyLR(val, 0 - val)
+
+
+# CHECKER
 
 def is_intersection():
     leftLight = clr.getLeft()
@@ -40,3 +52,10 @@ def is_intersection():
         return True
     else:
         return False
+
+def is_turn_finished():
+    global turn_pid
+    setp = turn_pid.setpoint
+    actual = gyro.get()
+    finished = abs(actual - setp) < 5
+    return finished

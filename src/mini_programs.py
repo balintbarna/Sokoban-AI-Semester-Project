@@ -12,5 +12,5 @@ def go_until_intersection():
 
 def turn(set_deg = 0):
     ctrl.turn_setup(set_deg)
-    while(abs(gyro.get() - set_deg) > 5):
+    while(ctrl.is_turn_finished() == False):
         ctrl.turn_control()
