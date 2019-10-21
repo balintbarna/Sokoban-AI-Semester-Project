@@ -7,8 +7,9 @@ from simple_pid import PID
 
 BASE_SPEED = 60
 
-pid = PID(0.2,0.0,0.02) # PID object for line follower
-def line_follow():
+line_pid = PID(0.2,0.0,0.02) # PID object for line follower
+def line_control():
+    global line_pid
     leftLight = clr.getLeft()
     rightLight = clr.getRight()
     diff = leftLight - rightLight
@@ -17,14 +18,10 @@ def line_follow():
 	# error is setpoint - input
 	# pid output is opposite sign of input
 	# positive val means turn right
-    val = pid(diff)
+    val = line_pid(diff)
     leftSpeed = BASE_SPEED - val
     rightSpeed = BASE_SPEED + val
     mtr.setDutyLR(leftSpeed, rightSpeed)
-
-def go_until_intersection():
-    while(detect_intersection() == False):
-        line_follow()
 
 def turn(set_deg = 0):
     gyro.reset()
@@ -35,7 +32,7 @@ def turn(set_deg = 0):
         mtr.setDutyLR(val, 0 - val)
         gyro_val = gyro.get()
 
-def detect_intersection():
+def is_intersection():
     leftLight = clr.getLeft()
     rightLight = clr.getRight()
 

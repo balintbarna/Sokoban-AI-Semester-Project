@@ -13,6 +13,7 @@ import driver.gyro as gyro
 from simple_pid import PID
 
 import control as ctrl
+import mini_programs as prg
 
 def close():
 	mtr.coast()
@@ -55,7 +56,7 @@ def control_main():
 	# 	ctrl.turn(90)
 	# 	state = "go-straight"
 
-	ctrl.go_until_intersection()
+	prg.go_until_intersection()
 	mtr.stop()
 	ctrl.turn(90)
 	mtr.stop()
