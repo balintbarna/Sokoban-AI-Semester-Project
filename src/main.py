@@ -12,6 +12,8 @@ import driver.gyro as gyro
 
 from simple_pid import PID
 
+import control as ctrl
+
 def close():
 	mtr.coast()
 	print('Shutting down gracefully')
@@ -35,25 +37,10 @@ def check_exit_condition():
 	if btn.any():
 		close()
 
-BASE_SPEED = 30
-TURN_SPEED = 80
-
-pid = PID(0.1)
+#  LOGIC  ----------------------------------------
 
 def control_main():
-	leftLight = clr.getLeft()
-	rightLight = clr.getRight()
-	diff = leftLight - rightLight
-	# positive diff means turn left
-	# setpoint is 0
-	# error is setpoint - input
-	# pid output is opposite sign of input
-	# positive val means turn right
-	val = pid(diff)
-	leftSpeed = BASE_SPEED - val
-	rightSpeed = BASE_SPEED + val
-	mtr.setDutyLR(leftSpeed, rightSpeed)
-	#print(diff)
+	ctrl.line_follow()
 
 while True:
 	check_exit_condition()
