@@ -13,6 +13,7 @@ import driver.gyro as gyro
 from simple_pid import PID
 
 import control as ctrl
+import mini_programs as prg
 
 def close():
 	mtr.coast()
@@ -42,13 +43,24 @@ def check_exit_condition():
 state = "default"
 
 def control_main():
-	global state
-	if(ctrl.detect_intersection()):
-		state = "stop"
-	if(state == "default"):
-		ctrl.line_follow()
-	if(state == "stop"):
-		mtr.stop()
+	# global state
+	# if(ctrl.detect_intersection()):
+	# 	state = "stop"
+	# if(state == "default" or state == "go-straight"):
+	# 	ctrl.line_follow()
+	# if(state == "stop"):
+	# 	mtr.stop()
+	# 	sleep(1)
+	# 	state = "turn-right"
+	# if(state == "turn-right"):
+	# 	ctrl.turn(90)
+	# 	state = "go-straight"
+
+	prg.go_until_intersection()
+	mtr.stop()
+	prg.turn(90)
+	mtr.stop()
+
 
 while True:
 	check_exit_condition()
