@@ -19,8 +19,7 @@ def stop():
     setDuty(0)
 
 def setDuty(duty):
-    left.duty_cycle_sp = duty
-    right.duty_cycle_sp = duty
+    setDutyLR(duty, duty)
 
 def setDutyLR(dutyL, dutyR):
     left.duty_cycle_sp = dutyL
