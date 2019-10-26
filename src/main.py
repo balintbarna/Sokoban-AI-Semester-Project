@@ -71,11 +71,29 @@ def control_main():
 	prg.turn_right_every_time()
 
 
-cmd.cmdlist = cmd.deque([cmd.Command.GO_STRAIGHT, cmd.Command.GO_STRAIGHT, cmd.Command.TURN_RIGHT, cmd.Command.GO_STRAIGHT, cmd.Command.GO_STRAIGHT, cmd.Command.TURN_AROUND, cmd.Command.GO_STRAIGHT, cmd.Command.GO_STRAIGHT, cmd.Command.TURN_LEFT, cmd.Command.GO_STRAIGHT, cmd.Command.GO_STRAIGHT, cmd.Command.TURN_AROUND])
+cmd.cmdlist = cmd.deque([
+cmd.Command.GO_STRAIGHT,
+cmd.Command.TURN_RIGHT,
+cmd.Command.GO_STRAIGHT,
+cmd.Command.PUSH_CAN_AND_RETURN,
+cmd.Command.TURN_RIGHT,
+cmd.Command.GO_STRAIGHT,
+cmd.Command.TURN_LEFT,
+cmd.Command.GO_STRAIGHT,
+cmd.Command.TURN_LEFT,
+cmd.Command.GO_STRAIGHT,
+cmd.Command.GO_STRAIGHT,
+cmd.Command.PUSH_CAN_AND_RETURN,
+cmd.Command.TURN_LEFT,
+cmd.Command.GO_STRAIGHT,
+cmd.Command.GO_STRAIGHT,
+cmd.Command.TURN_LEFT,
+cmd.Command.GO_STRAIGHT,
+cmd.Command.GO_STRAIGHT,
+cmd.Command.TURN_AROUND])
 
 # main loop
 while True:
 	check_exit_condition()
 	# control_main()
 	stm.run_states()
-
