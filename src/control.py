@@ -9,7 +9,7 @@ from simple_pid import PID
 # MOVE STRAIGHT
 
 line_pid = PID(cnst.LINE_PID_P, cnst.LINE_PID_I, cnst.LINE_PID_D, 0.0) # PID object for line follower
-
+BASE_SPEED = cnst.FORWARD_SPEED
 def line_control():
     """
     This function uses the difference between the two color sensor values as the input for a PID controller.
@@ -26,8 +26,8 @@ def line_control():
 	# pid output is opposite sign of input
 	# positive val means turn right
     val = line_pid(diff)
-    leftSpeed = cnst.BASE_SPEED - val
-    rightSpeed = cnst.BASE_SPEED + val
+    leftSpeed = BASE_SPEED - val
+    rightSpeed = BASE_SPEED + val
     mtr.setDutyLR(leftSpeed, rightSpeed)
 
 

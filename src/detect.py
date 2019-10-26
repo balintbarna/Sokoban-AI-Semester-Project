@@ -3,8 +3,13 @@ import driver.motor as mtr
 import driver.gyro as gyro
 import constants as cnst
 import control as ctrl
+import time
 
 color_last = False # True is black, False is white
+
+def setup_intersection_detection():
+    is_above_intersection()
+
 def is_above_intersection():
     global color_last
     leftLight = clr.getLeft()
@@ -58,5 +63,25 @@ def is_turn_finished():
     finished = abs(actual - setp) < cnst.TURN_OK_ERROR_THRESHOLD
     return finished
 
+can_push_timer = time.perf_counter()
+def setup_detect_can_push():
+    global can_push_timer
+    can_push_timer = time.perf_counter()
+
 def is_can_pushed():
-    return is_start_of_intersection()
+    elapsed_time = time.perf_counter() - can_push_timer
+    return (elapsed_time > cnst.CAN_PUSH_TIME)
+
+
+backwards_timer = time.perf_counter()
+def setup_detect_go_backwards():
+    global backwards_timer
+    backwards_timer = time.perf_counter()
+
+def is_going_backwards_finished():
+    elapsed_time = time.perf_counter() - backwards_timer
+    temp = is_end_of_intersection()
+    if(elapsed_time < cnst.GO_BACK_TRESHOLD_TIME):
+        return False
+    else:
+        return temp

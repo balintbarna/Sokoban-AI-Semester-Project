@@ -1,6 +1,7 @@
 import driver.color_sensor as clr
 import driver.motor as mtr
 import driver.gyro as gyro
+import constants as cnst
 
 import control as ctrl
 import detect as dtct
@@ -38,6 +39,7 @@ def setup_next_command():
             ctrl.turn_setup(180)
             act_st = States.TURNING
         elif(command == Cmd.PUSH_CAN_AND_RETURN):
+            dtct.setup_detect_can_push()
             act_st = States.PUSHING_CAN
         else:
             print("Error, unrecognized command")
@@ -65,15 +67,18 @@ def run_states():
         if(dtct.is_can_pushed() == False):
             ctrl.line_control()
         else:
+            dtct.setup_detect_go_backwards()
             act_st = States.BACKWARD
 
     elif(act_st == States.BACKWARD):
-        if(dtct.is_start_of_intersection() == False):
-            mtr.backwards()
-            ctrl.line_control()
+        if(dtct.is_going_backwards_finished() == False):
+            # mtr.backwards()
+            # ctrl.line_control()
+	        mtr.setDuty(cnst.BACKWARD_SPEED)
         else:
-            mtr.forwards()
-            setup_next_command()
+            # mtr.forwards()
+            # setup_next_command()
+            act_st = States.FORWARD
     
     elif(act_st == States.STOPPING):
         mtr.stop()
