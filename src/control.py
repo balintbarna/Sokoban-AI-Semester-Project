@@ -61,16 +61,29 @@ def turn_control():
 # CHECKER
 
 
+color_last = True # false is black, true is white
 def is_intersection():
     """
     Tells if the sensors are right above an intersection.
     Constants need to be configured right to detect blackness.
     """
+    global color_last
     leftLight = clr.getLeft()
     rightLight = clr.getRight()
 
+    color_actual = True
+    color_was = color_last
     # both sensor inputs should be darker than lightest black
     if(leftLight < cnst.BLACK_THRESHOLD_MAX and rightLight < cnst.BLACK_THRESHOLD_MAX):
+        # black
+        color_actual = False
+    else:
+        # white
+        color_actual = True
+    
+    color_last = color_actual
+
+    if(color_was == False and color_actual == True): # if it turned white from back, we say it's intersection
         return True
     else:
         return False
