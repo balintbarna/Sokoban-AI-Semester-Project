@@ -18,17 +18,13 @@ from simple_pid import PID
 
 import control as ctrl
 import mini_programs as prg
-
-def close():
-	"""Stop the motors, beep, shut down program"""
-	mtr.coast()
-	print('Shutting down gracefully')
-	ev3.Sound.beep().wait()
-	exit(0)
+import command_handler as cmd
+import state_machine as stm
+from driver.shutdown import *
 
 def signal_handler(sig, frame):
 	"""Closes program on CTRL+C"""
-	close()
+	shutdown()
 
 signal.signal(signal.SIGINT, signal_handler)
 print('Press Ctrl+C to exit')
@@ -39,10 +35,10 @@ def check_exit_condition():
 	tou_val = touch.get()
 
 	if tou_val > 0:
-		close()
+		shutdown()
 
 	if btn.any():
-		close()
+		shutdown()
 
 #  LOGIC  ----------------------------------------
 
@@ -75,7 +71,11 @@ def control_main():
 	prg.turn_right_every_time()
 
 
+cmd.cmdlist = cmd.deque([cmd.Command.GO_STRAIGHT, cmd.Command.GO_STRAIGHT, cmd.Command.TURN_RIGHT, cmd.Command.GO_STRAIGHT, cmd.Command.GO_STRAIGHT, cmd.Command.TURN_AROUND, cmd.Command.GO_STRAIGHT, cmd.Command.GO_STRAIGHT, cmd.Command.TURN_LEFT, cmd.Command.GO_STRAIGHT, cmd.Command.GO_STRAIGHT, cmd.Command.TURN_AROUND])
+
 # main loop
 while True:
 	check_exit_condition()
-	control_main()
+	# control_main()
+	stm.run_states()
+
