@@ -3,6 +3,7 @@ import driver.motor as mtr
 import driver.gyro as gyro
 
 import control as ctrl
+import detect as dtct
 from command_handler import cmdlist
 import command_handler as cmd
 from command_handler import Command as Cmd
@@ -12,9 +13,11 @@ from enum import Enum
 
 class States(Enum):
     TURNING = 1
-    MOVING = 2
+    FORWARD = 2
     DEFAULT = 3
     STOPPING = 4
+    BACKWARD = 5
+    PUSHING_CAN = 6
 
 act_st = States.DEFAULT
 
@@ -24,7 +27,7 @@ def setup_next_command():
         command = cmd.cmdlist.popleft()
         print("Next command: " + repr(command))
         if(command == Cmd.GO_STRAIGHT):
-            act_st = States.MOVING
+            act_st = States.FORWARD
         elif(command == Cmd.TURN_RIGHT):
             ctrl.turn_setup(90)
             act_st = States.TURNING
@@ -34,6 +37,8 @@ def setup_next_command():
         elif(command == Cmd.TURN_AROUND):
             ctrl.turn_setup(180)
             act_st = States.TURNING
+        elif(command == Cmd.PUSH_CAN_AND_RETURN):
+            act_st = States.PUSHING_CAN
         else:
             print("Error, unrecognized command")
             shutdown()
@@ -44,16 +49,30 @@ def setup_next_command():
 
 def run_states():
     global act_st
-    if(act_st == States.MOVING):
-        if(ctrl.is_intersection() == False):
+    if(act_st == States.FORWARD):
+        if(dtct.is_end_of_intersection() == False):
             ctrl.line_control()
         else:
             setup_next_command()
 
     elif(act_st == States.TURNING):
-        if(ctrl.is_turn_finished() == False):
+        if(dtct.is_turn_finished() == False):
             ctrl.turn_control()
         else:
+            setup_next_command()
+
+    elif(act_st == States.PUSHING_CAN):
+        if(dtct.is_can_pushed() == False):
+            ctrl.line_control()
+        else:
+            act_st = States.BACKWARD
+
+    elif(act_st == States.BACKWARD):
+        if(dtct.is_start_of_intersection() == False):
+            mtr.backwards()
+            ctrl.line_control()
+        else:
+            mtr.forwards()
             setup_next_command()
     
     elif(act_st == States.STOPPING):
