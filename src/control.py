@@ -9,7 +9,7 @@ from simple_pid import PID
 # MOVE STRAIGHT
 
 line_pid = PID(cnst.LINE_PID_P, cnst.LINE_PID_I, cnst.LINE_PID_D, 0.0) # PID object for line follower
-
+BASE_SPEED = cnst.FORWARD_SPEED
 def line_control():
     """
     This function uses the difference between the two color sensor values as the input for a PID controller.
@@ -26,8 +26,8 @@ def line_control():
 	# pid output is opposite sign of input
 	# positive val means turn right
     val = line_pid(diff)
-    leftSpeed = cnst.BASE_SPEED - val
-    rightSpeed = cnst.BASE_SPEED + val
+    leftSpeed = BASE_SPEED - val
+    rightSpeed = BASE_SPEED + val
     mtr.setDutyLR(leftSpeed, rightSpeed)
 
 
@@ -57,44 +57,3 @@ def turn_control():
     global turn_pid
     val = turn_pid(gyro.get())
     mtr.setDutyLR(val, 0 - val)
-
-# CHECKER
-
-
-color_last = True # false is black, true is white
-def is_intersection():
-    """
-    Tells if the sensors are right above an intersection.
-    Constants need to be configured right to detect blackness.
-    """
-    global color_last
-    leftLight = clr.getLeft()
-    rightLight = clr.getRight()
-
-    color_actual = True
-    color_was = color_last
-    # both sensor inputs should be darker than lightest black
-    if(leftLight < cnst.BLACK_THRESHOLD_MAX and rightLight < cnst.BLACK_THRESHOLD_MAX):
-        # black
-        color_actual = False
-    else:
-        # white
-        color_actual = True
-    
-    color_last = color_actual
-
-    if(color_was == False and color_actual == True): # if it turned white from back, we say it's intersection
-        return True
-    else:
-        return False
-
-def is_turn_finished():
-    """
-    Tells if the turn, which was setup with turn_setup(), is completed, by reading the gyro values.
-    Completion treshhol needs to be configured properly.
-    """
-    global turn_pid
-    setp = turn_pid.setpoint
-    actual = gyro.get()
-    finished = abs(actual - setp) < cnst.TURN_OK_ERROR_THRESHOLD
-    return finished
