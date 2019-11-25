@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <deque>
 using namespace std;
 
 const char CHAR_WALL = 'X';
@@ -147,7 +148,7 @@ vector<int> find_robot(vector<string> &map)
         cout << "robot pos error" << endl;
     }
 
-    cout << "Robot pos: (" << x << "; " << y << ")" << endl;
+    // cout << "Robot pos: (" << x << "; " << y << ")" << endl;
     return coords;
 }
 
@@ -288,7 +289,10 @@ bool apply_step(vector<string> &map, vector<int> &current_coord, char &step)
     return true;
 }
 
-void apply_steps(vector<string> &map, string &steps)
+/**
+ * returns if steps were successfully applied
+ */
+bool apply_steps(vector<string> &map, string &steps)
 {
     // find robot
     auto robot_pos = find_robot(map);
@@ -296,13 +300,12 @@ void apply_steps(vector<string> &map, string &steps)
     // iterate thru steps
     for(int i = 0; i < steps.size(); i++)
     {
-        cout<<"step"<<i<<":"<<steps[i]<<endl;
+        // cout<<"step"<<i<<":"<<steps[i]<<endl;
         bool success = apply_step(map, robot_pos, steps[i]);
-        if(success)
-            print_map(map);
-        else
-            cout << "Steps could not be applied" << endl;
+        if(success == false) return false;
     }
+
+    return true;
 }
 
 int check_solved(vector<string> &map)
@@ -347,19 +350,64 @@ int main(int argc, char* argv[])
     cout << "working map" << endl;
     print_map(working_map);
 
-    // experiment
-    // get in the frist one
-    string commands("dlllluuuurrdruuurululd");
-    // get in second one
-    commands.append("rdddlllddrulurrdruuurullluld");
-    // third
-    commands.append("rrrdddlllddddruuulurrdruuuurulll");
-    // fourth
-    commands.append("rrddddlllddddrrrrulldluuulurrdruuuruulldrurd");
-    apply_steps(working_map, commands);
-    if(check_solved(working_map) == 0)
+    // // experiment
+    // // get in the frist one
+    // string commands("dlllluuuurrdruuurululd");
+    // // get in second one
+    // commands.append("rdddlllddrulurrdruuurullluld");
+    // // third
+    // commands.append("rrrdddlllddddruuulurrdruuuurulll");
+    // // fourth
+    // commands.append("rrddddlllddddrrrrulldluuulurrdruuuruulldrurd");
+    // apply_steps(working_map, commands);
+    // if(check_solved(working_map) == 0)
+    // {
+    //     cout << "Solution found:" << commands << endl;
+    // }
+
+    // create open list
+    deque<string> open_list;
+    open_list.push_back(string(""));
+    // iterate until there's nothing left
+    int steps_len = 0;
+    while(open_list.empty() == false)
     {
-        cout << "Solution found:" << commands << endl;
+        auto steps = open_list.front();
+        open_list.pop_front();
+        int nu_size = steps.size();
+        if(nu_size > 30)
+        {
+            cout << "No solution found" << endl;
+            return 69;
+        }
+        if(nu_size != steps_len)
+        {
+            cout << "Steps length: " << nu_size << endl;
+            steps_len = nu_size;
+        }
+        // cout << "Steps:"<<steps<<endl;
+        working_map = starting_map;
+        bool did_apply = apply_steps(working_map, steps);
+        if(did_apply == false) continue;
+
+        if(check_solved(working_map) == 0)
+        {
+            cout << "Solution found:" << steps << endl;
+            break;
+        }
+
+        string up(steps);
+        up.push_back('u');
+        string down(steps);
+        down.push_back('d');
+        string left(steps);
+        left.push_back('l');
+        string right(steps);
+        right.push_back('r');
+        open_list.push_back(up);
+        open_list.push_back(down);
+        open_list.push_back(left);
+        open_list.push_back(right);
     }
 
     return 0;
