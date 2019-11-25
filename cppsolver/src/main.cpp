@@ -13,7 +13,7 @@ const char CHAR_ROBOT_ON_GOAL = 'm';
 const char CHAR_ROAD = '.';
 
 const char CHAR_OUT_OF_BOUNDS = '1';
-const char CHAR_CANNOT_ARIIVE = '2';
+const char CHAR_CANNOT_ARRIVE = '2';
 const char CHAR_CANNOT_LEAVE = '3';
 
 string S_WALL("█");
@@ -62,13 +62,15 @@ string convert_to_visual(char c)
         return S_ROBOT_ON_GOAL;
     
     default:
-        return string("?");
+        string s;
+        s.push_back(c);
+        return s;
     }
 }
 
-void print_map(vector<string> map)
+void print_map(vector<string> &map)
 {
-    for(string s : map)
+    for(string &s : map)
     {
         for(char c : s)
         {
@@ -78,9 +80,9 @@ void print_map(vector<string> map)
     }
 }
 
-void print_map_as_is(vector<string> map)
+void print_map_as_is(vector<string> &map)
 {
-    for(string s : map)
+    for(string &s : map)
     {
         cout<< s << endl;
     }
@@ -226,7 +228,7 @@ char when_arriving(char on, char what)
             return CHAR_CAN_ON_GOAL;
         }
     }
-    return CHAR_CANNOT_ARIIVE;
+    return CHAR_CANNOT_ARRIVE;
 }
 
 /**
@@ -279,7 +281,6 @@ bool apply_step(vector<string> &map, vector<int> &current_coord, char step)
         set_here(map, next_coord, arrive);
         set_here(map, current_coord, leave);
     }
-    // can on goal, same but 
 
     current_coord = next_coord;
     return true;
@@ -298,6 +299,22 @@ void apply_steps(vector<string> &map, string &steps)
         apply_step(map, robot_pos, step);
         print_map(map);
     }
+}
+
+int check_solved(vector<string> &map)
+{
+    int n = 0;
+    for(string &s : map)
+    {
+        for(char c : s)
+        {
+            if(c == CHAR_CAN || c == CHAR_GOAL || c == CHAR_ROBOT_ON_GOAL)
+            {
+                n++;
+            }
+        }
+    }
+    return n;
 }
 
 int main(int argc, char* argv[])
@@ -327,8 +344,20 @@ int main(int argc, char* argv[])
     print_map(working_map);
 
     // experiment
-    string commands("dlllluuuurrdruuurululdrrd");
+    // get in the frist one
+    string commands("dlllluuuurrdruuurululd");
+    // get in second one
+    commands.append("rdddlllddrulurrdruuurullluld");
+    // third
+    commands.append("rrrdddlllddddruuulurrdruuuurulll");
+    // fourth
+    commands.append("rrddddlllddddrrrrulldluuulurrdruuuruulldrurd");
     apply_steps(working_map, commands);
+    if(check_solved(working_map))
+    {
+        cout << "Solution found:" << commands << endl;
+    }
+
 
     return 0;
 }
