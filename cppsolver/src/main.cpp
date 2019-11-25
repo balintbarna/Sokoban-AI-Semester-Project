@@ -86,7 +86,7 @@ void print_map_as_is(vector<string> map)
 
 char whats_here(vector<string> &map, int x, int y)
 {
-    if(x < -1 || x >= map.size() || y < -1 || y >= map[y].size())
+    if(y < 0 || x < 0 || y >= map.size() || x >= map[y].size())
     {
         return CHAR_OUT_OF_BOUNDS;
     }
