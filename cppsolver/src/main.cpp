@@ -4,13 +4,21 @@
 #include <vector>
 using namespace std;
 
-char CHAR_WALL = '█';
-char CHAR_GOAL = '◌';
-char CHAR_CAN = '■';
-char CHAR_CAN_ON_GOAL = '◙';
-char CHAR_ROBOT = '☺';
-char CHAR_ROBOT_ON_GOAL = '☻';
-char CHAR_ROAD = ' ';
+const char CHAR_WALL = 'X';
+const char CHAR_GOAL = 'G';
+const char CHAR_CAN = 'J';
+const char CHAR_CAN_ON_GOAL = 'j';
+const char CHAR_ROBOT = 'M';
+const char CHAR_ROBOT_ON_GOAL = 'm';
+const char CHAR_ROAD = '.';
+
+string S_WALL("█");
+string S_GOAL("◌");
+string S_CAN("■");
+string S_CAN_ON_GOAL("◙");
+string S_ROBOT("☺");
+string S_ROBOT_ON_GOAL("☻");
+string S_ROAD(" ");
 
 
 vector<string> read_map(string &map_path)
@@ -30,6 +38,50 @@ vector<string> read_map(string &map_path)
     return map;
 }
 
+string convert_to_visual(char c)
+{
+    switch (c)
+    {
+    case CHAR_WALL:
+        return S_WALL;
+    case CHAR_CAN:
+        return S_CAN;
+    case CHAR_CAN_ON_GOAL:
+        return S_CAN_ON_GOAL;
+    case CHAR_GOAL:
+        return S_GOAL;
+    case CHAR_ROAD:
+        return S_ROAD;
+    case CHAR_ROBOT:
+        return S_ROBOT;
+    case CHAR_ROBOT_ON_GOAL:
+        return S_ROBOT_ON_GOAL;
+    
+    default:
+        return string("?");
+    }
+}
+
+void print_map(vector<string> map)
+{
+    for(string s : map)
+    {
+        for(char c : s)
+        {
+            cout << convert_to_visual(c);
+        }
+        cout << endl;
+    }
+}
+
+void print_map_as_is(vector<string> map)
+{
+    for(string s : map)
+    {
+        cout<< s << endl;
+    }
+}
+
 char whats_here(vector<string> &map, int x, int y)
 {
     return map[y][x];
@@ -42,28 +94,40 @@ char whats_here(vector<string> &map, vector<int> &coords)
 
 vector<int> find_object_in(vector<string> &map, string &objects)
 {
-    int x = -1, y = -1;
-    bool searching = true;
-    for(; y < map.size() && searching; y++)
+    // cout<<"starting find object"<<endl;
+    int x, y;
+    for(y = 0; y < map.size(); y++)
     {
+        // cout<<"y:"<<y<<endl;
         string &line = map[y];
-        for(; x < line.size() && searching; x++)
+        // cout<<"linesize"<<line.size()<<endl;
+        for(x = 0; x < line.size(); x++)
         {
+            char k = line[x];
+            // cout<<"coord["<<x<<","<<y<<"]"<<endl;
+            // cout<<"char:"<<k<<endl;
+
             for(char c : objects)
             {
-                if(line[x] == c)
+                if(k == c)
                 {
-                    searching = false;
-                    break;
+                    // jump to return point
+                    goto STEP_OUT;
                 }
             }
         }
     }
+    // loop completed without finding anything
+    x = -1;
+    y = -1;
+    // if loop finds something, jump here
+    STEP_OUT:
     return vector<int>{x,y};
 }
 
 vector<int> find_robot(vector<string> &map)
 {
+    // cout<<"starting find robot"<<endl;
     string objects{CHAR_ROBOT, CHAR_ROBOT_ON_GOAL};
     auto coords = find_object_in(map, objects);
     int x = coords[0];
@@ -126,14 +190,6 @@ void apply_steps(vector<string> &map, string &steps)
     }
 }
 
-void print_map(vector<string> map)
-{
-    for(string s : map)
-    {
-        cout << s << endl;
-    }
-}
-
 int main(int argc, char* argv[])
 {
     // get map path
@@ -143,17 +199,22 @@ int main(int argc, char* argv[])
         std::cerr << "Usage: " << argv[0] << " MAP_PATH" << std::endl;
         return 1;
     }
+
     string map_path(argv[1]);
 
     // read map
     auto starting_map = read_map(map_path);
 
     // print map
+    cout << "original map as is" << endl;
+    print_map_as_is(starting_map);
     cout << "original map" << endl;
     print_map(starting_map);
 
     // copy working map
     auto working_map(starting_map);
+    cout << "working map" << endl;
+    print_map(working_map);
 
     // experiment
     string commands("lll");
