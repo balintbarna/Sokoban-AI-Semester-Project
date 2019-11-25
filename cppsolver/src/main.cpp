@@ -12,6 +12,8 @@ const char CHAR_ROBOT = 'M';
 const char CHAR_ROBOT_ON_GOAL = 'm';
 const char CHAR_ROAD = '.';
 
+const char CHAR_OUT_OF_BOUNDS = 'z';
+
 string S_WALL("█");
 string S_GOAL("◌");
 string S_CAN("■");
@@ -84,6 +86,10 @@ void print_map_as_is(vector<string> map)
 
 char whats_here(vector<string> &map, int x, int y)
 {
+    if(x < -1 || x >= map.size() || y < -1 || y >= map[y].size())
+    {
+        return CHAR_OUT_OF_BOUNDS;
+    }
     return map[y][x];
 }
 
@@ -178,13 +184,15 @@ void set_here(vector<string> &map, vector<int> &coords, char to)
     map[y][x] = to;
 }
 
-char when_leaving(char with_robot)
+char when_leaving(char from)
 {
-    switch (with_robot)
+    switch (from)
     {
     case CHAR_ROBOT:
+    case CHAR_CAN:
         return CHAR_ROAD;
     case CHAR_ROBOT_ON_GOAL:
+    case CHAR_CAN_ON_GOAL:
         return CHAR_GOAL;
     
     default:
@@ -192,19 +200,42 @@ char when_leaving(char with_robot)
     }
 }
 
-void apply_step(vector<string> &map, vector<int> &current_coord, char step)
+/**
+ * returns if applying the step was successful
+ */
+bool apply_step(vector<string> &map, vector<int> &current_coord, char step)
 {
     auto next_coord = get_next_coord(current_coord, step);
     char at_current = whats_here(map, current_coord);
     char at_next = whats_here(map, next_coord);
+    // out of bounds
+    if(at_next == CHAR_OUT_OF_BOUNDS)
+    {
+        cout << "CHAR OUT OF BOUNDS" << endl;
+        return false;
+    }
+    // simple case, go there, set current to what it used to be
     if(at_next == CHAR_ROAD)
     {
         set_here(map, next_coord, CHAR_ROBOT);
         char to = when_leaving(at_current);
         set_here(map, current_coord, to);
     }
+    // can't go to wall, return false
+    else if(at_next == CHAR_WALL)
+    {
+        return false;
+    }
+    // goal, almost same as road
+    else if(at_next == CHAR_GOAL)
+    {
+        set_here(map, next_coord, CHAR_ROBOT_ON_GOAL);
+        char to = when_leaving(at_current);
+        set_here(map, current_coord, to);
+    }
 
     current_coord = next_coord;
+    return true;
 }
 
 void apply_steps(vector<string> &map, string &steps)
