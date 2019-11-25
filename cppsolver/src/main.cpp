@@ -30,6 +30,36 @@ vector<string> read_map(string map_path)
     return map;
 }
 
+vector<int> get_next_coord(vector<int> current_coord, char step)
+{
+    step = tolower(step);
+    int x = current_coord[0];
+    int y = current_coord[1];
+    int tx = -1;
+    int ty = -1;
+    if (step == 'l')
+    {
+        tx = x-1;
+        ty = y;
+    }
+    if (step == 'u')
+    {
+        tx = x;
+        ty = y-1;
+    }
+    if (step == 'r')
+    {
+        tx = x+1;
+        ty = y;
+    }
+    if (step == 'd')
+    {
+        tx = x;
+        ty = y+1;
+    }
+    return vector<int>(tx, ty);
+}
+
 vector<string> apply_steps(vector<string> &map, string &steps)
 {
     vector<string> nu(map);
@@ -57,27 +87,8 @@ vector<string> apply_steps(vector<string> &map, string &steps)
     for(int i = 0; i < steps.size(); i++)
     {
         char step = steps[i];
-        int tx = -1, ty = -1;
-        if (step == 'L')
-        {
-            tx = x-1;
-            ty = y;
-        }
-        if (step == 'U')
-        {
-            tx = x;
-            ty = y-1;
-        }
-        if (step == 'R')
-        {
-            tx = x+1;
-            ty = y;
-        }
-        if (step == 'D')
-        {
-            tx = x;
-            ty = y+1;
-        }
+        auto next_coord = get_next_coord(vector<int>(x,y), step);
+        int tx = next_coord[0], ty = next_coord[1];
         char target = nu[ty][tx];
         
     }
