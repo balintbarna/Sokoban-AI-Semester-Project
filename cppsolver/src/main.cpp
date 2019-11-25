@@ -234,7 +234,7 @@ char when_arriving(char on, char what)
 /**
  * returns if applying the step was successful
  */
-bool apply_step(vector<string> &map, vector<int> &current_coord, char step)
+bool apply_step(vector<string> &map, vector<int> &current_coord, char &step)
 {
     auto next_coord = get_next_coord(current_coord, step);
     char at_current = whats_here(map, current_coord);
@@ -280,6 +280,8 @@ bool apply_step(vector<string> &map, vector<int> &current_coord, char step)
         char leave = when_leaving(at_current);
         set_here(map, next_coord, arrive);
         set_here(map, current_coord, leave);
+        // show on step if pushing can
+        step = toupper(step);
     }
 
     current_coord = next_coord;
@@ -294,10 +296,12 @@ void apply_steps(vector<string> &map, string &steps)
     // iterate thru steps
     for(int i = 0; i < steps.size(); i++)
     {
-        char step = steps[i];
-        cout << "step"<<i<<":"<<step<<endl;
-        apply_step(map, robot_pos, step);
-        print_map(map);
+        cout<<"step"<<i<<":"<<steps[i]<<endl;
+        bool success = apply_step(map, robot_pos, steps[i]);
+        if(success)
+            print_map(map);
+        else
+            cout << "Steps could not be applied" << endl;
     }
 }
 
@@ -353,11 +357,10 @@ int main(int argc, char* argv[])
     // fourth
     commands.append("rrddddlllddddrrrrulldluuulurrdruuuruulldrurd");
     apply_steps(working_map, commands);
-    if(check_solved(working_map))
+    if(check_solved(working_map) == 0)
     {
         cout << "Solution found:" << commands << endl;
     }
-
 
     return 0;
 }
