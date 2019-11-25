@@ -171,10 +171,40 @@ vector<int> get_next_coord(vector<int> &current_coord, char step)
     return vector<int>{tx, ty};
 }
 
+void set_here(vector<string> &map, vector<int> &coords, char to)
+{
+    int x = coords[0];
+    int y = coords[1];
+    map[y][x] = to;
+}
+
+char when_leaving(char with_robot)
+{
+    switch (with_robot)
+    {
+    case CHAR_ROBOT:
+        return CHAR_ROAD;
+    case CHAR_ROBOT_ON_GOAL:
+        return CHAR_GOAL;
+    
+    default:
+        return '1';
+    }
+}
+
 void apply_step(vector<string> &map, vector<int> &current_coord, char step)
 {
     auto next_coord = get_next_coord(current_coord, step);
+    char at_current = whats_here(map, current_coord);
     char at_next = whats_here(map, next_coord);
+    if(at_next == CHAR_ROAD)
+    {
+        set_here(map, next_coord, CHAR_ROBOT);
+        char to = when_leaving(at_current);
+        set_here(map, current_coord, to);
+    }
+
+    current_coord = next_coord;
 }
 
 void apply_steps(vector<string> &map, string &steps)
@@ -186,7 +216,9 @@ void apply_steps(vector<string> &map, string &steps)
     for(int i = 0; i < steps.size(); i++)
     {
         char step = steps[i];
+        cout << "step"<<i<<":"<<step<<endl;
         apply_step(map, robot_pos, step);
+        print_map(map);
     }
 }
 
@@ -217,11 +249,8 @@ int main(int argc, char* argv[])
     print_map(working_map);
 
     // experiment
-    string commands("lll");
+    string commands("dll");
     apply_steps(working_map, commands);
-
-    cout << "map after steps" << endl;
-    print_map(working_map);
 
     return 0;
 }
