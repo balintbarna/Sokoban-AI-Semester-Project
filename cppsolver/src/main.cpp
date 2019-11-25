@@ -12,7 +12,9 @@ const char CHAR_ROBOT = 'M';
 const char CHAR_ROBOT_ON_GOAL = 'm';
 const char CHAR_ROAD = '.';
 
-const char CHAR_OUT_OF_BOUNDS = 'z';
+const char CHAR_OUT_OF_BOUNDS = '1';
+const char CHAR_CANNOT_ARIIVE = '2';
+const char CHAR_CANNOT_LEAVE = '3';
 
 string S_WALL("█");
 string S_GOAL("◌");
@@ -196,8 +198,35 @@ char when_leaving(char from)
         return CHAR_GOAL;
     
     default:
-        return '1';
+        return CHAR_CANNOT_LEAVE;
     }
+}
+
+char when_arriving(char on, char what)
+{
+    if(on == CHAR_ROAD)
+    {
+        if(what == CHAR_ROBOT || what == CHAR_ROBOT_ON_GOAL)
+        {
+            return CHAR_ROBOT;
+        }
+        else if(what == CHAR_CAN || what == CHAR_CAN_ON_GOAL)
+        {
+            return CHAR_CAN;
+        }
+    }
+    else if(on == CHAR_GOAL)
+    {
+        if(what == CHAR_ROBOT || what == CHAR_ROBOT_ON_GOAL)
+        {
+            return CHAR_ROBOT_ON_GOAL;
+        }
+        else if(what == CHAR_CAN || what == CHAR_CAN_ON_GOAL)
+        {
+            return CHAR_CAN_ON_GOAL;
+        }
+    }
+    return CHAR_CANNOT_ARIIVE;
 }
 
 /**
@@ -209,30 +238,48 @@ bool apply_step(vector<string> &map, vector<int> &current_coord, char step)
     char at_current = whats_here(map, current_coord);
     char at_next = whats_here(map, next_coord);
     // out of bounds
-    if(at_next == CHAR_OUT_OF_BOUNDS)
+    if(at_next == CHAR_OUT_OF_BOUNDS || at_current == CHAR_OUT_OF_BOUNDS)
     {
         cout << "CHAR OUT OF BOUNDS" << endl;
         return false;
     }
-    // simple case, go there, set current to what it used to be
-    if(at_next == CHAR_ROAD)
+
+    // road or goal, simple case, go there, set current to what it used to be
+    if(at_next == CHAR_ROAD || at_next == CHAR_GOAL)
     {
-        set_here(map, next_coord, CHAR_ROBOT);
-        char to = when_leaving(at_current);
-        set_here(map, current_coord, to);
+        char arrive = when_arriving(at_next, at_current);
+        char leave = when_leaving(at_current);
+        set_here(map, next_coord, arrive);
+        set_here(map, current_coord, leave);
     }
     // can't go to wall, return false
     else if(at_next == CHAR_WALL)
     {
         return false;
     }
-    // goal, almost same as road
-    else if(at_next == CHAR_GOAL)
+    else if(at_next == CHAR_CAN || at_next == CHAR_CAN_ON_GOAL)
     {
-        set_here(map, next_coord, CHAR_ROBOT_ON_GOAL);
-        char to = when_leaving(at_current);
-        set_here(map, current_coord, to);
+        // needs to be road or goal behind can
+        auto behind_coord = get_next_coord(next_coord, step);
+        char behind_can = whats_here(map, behind_coord);
+        if(behind_can == CHAR_ROAD || behind_can == CHAR_GOAL)
+        {
+            char arrive = when_arriving(behind_can, at_next);
+            char leave = when_leaving(at_next);
+            set_here(map, behind_coord, arrive);
+            set_here(map, next_coord, leave);
+            at_next = leave;
+        }
+        else
+        {
+            return false;
+        }
+        char arrive = when_arriving(at_next, at_current);
+        char leave = when_leaving(at_current);
+        set_here(map, next_coord, arrive);
+        set_here(map, current_coord, leave);
     }
+    // can on goal, same but 
 
     current_coord = next_coord;
     return true;
@@ -280,7 +327,7 @@ int main(int argc, char* argv[])
     print_map(working_map);
 
     // experiment
-    string commands("dll");
+    string commands("dlllluuuurrdruuurululdrrd");
     apply_steps(working_map, commands);
 
     return 0;
