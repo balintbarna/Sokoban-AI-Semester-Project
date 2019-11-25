@@ -13,7 +13,7 @@ char CHAR_ROBOT_ON_GOAL = '☻';
 char CHAR_ROAD = ' ';
 
 
-vector<string> read_map(string map_path)
+vector<string> read_map(string &map_path)
 {
     vector<string> map;
     fstream f(map_path, fstream::in);
@@ -30,7 +30,49 @@ vector<string> read_map(string map_path)
     return map;
 }
 
-vector<int> get_next_coord(vector<int> current_coord, char step)
+char whats_here(vector<string> &map, int x, int y)
+{
+    return map[y][x];
+}
+
+vector<int> find_object_in(vector<string> &map, string &objects)
+{
+    int x = -1, y = -1;
+    bool searching = true;
+    for(; y < map.size() && searching; y++)
+    {
+        string &line = map[y];
+        for(; x < line.size() && searching; x++)
+        {
+            for(char c : objects)
+            {
+                if(line[x] == c)
+                {
+                    searching = false;
+                    break;
+                }
+            }
+        }
+    }
+    return vector<int>{x,y};
+}
+
+vector<int> find_robot(vector<string> &map)
+{
+    string objects{CHAR_ROBOT, CHAR_ROBOT_ON_GOAL};
+    auto coords = find_object_in(map, objects);
+    int x = coords[0];
+    int y = coords[1];
+    if (x < 0 || y < 0)
+    {
+        cout << "robot pos error" << endl;
+    }
+
+    cout << "Robot pos: (" << x << "; " << y << ")" << endl;
+    return coords;
+}
+
+vector<int> get_next_coord(vector<int> &current_coord, char step)
 {
     step = tolower(step);
     int x = current_coord[0];
@@ -57,39 +99,26 @@ vector<int> get_next_coord(vector<int> current_coord, char step)
         tx = x;
         ty = y+1;
     }
-    return vector<int>(tx, ty);
+    return vector<int>{tx, ty};
+}
+
+vector<string> apply_step(vector<string> &map, vector<int> &current_coord, char step)
+{
+
 }
 
 vector<string> apply_steps(vector<string> &map, string &steps)
 {
-    vector<string> nu(map);
     // find robot
-    int x = -1, y = -1;
-    for(; y < nu.size(); y++)
-    {
-        string line = nu[y];
-        for(; x < line.size(); x++)
-        {
-            if(line[x] == CHAR_ROBOT || line[x] == CHAR_ROBOT_ON_GOAL)
-            {
-                break;
-            }
-        }
-    }
-    if (x < 0 || y < 0)
-    {
-        cout << "robot pos error" << endl;
-        return nu;
-    }
+    auto robot_pos = find_robot(map);
 
-    cout << "Robot pos: (" << x << "; " << y << ")" << endl;
-
+    // iterate thru steps
     for(int i = 0; i < steps.size(); i++)
     {
         char step = steps[i];
-        auto next_coord = get_next_coord(vector<int>(x,y), step);
+        auto next_coord = get_next_coord(robot_pos, step);
         int tx = next_coord[0], ty = next_coord[1];
-        char target = nu[ty][tx];
+        char target = map[ty][tx];
         
     }
 }
@@ -104,6 +133,7 @@ void print_map(vector<string> map)
 
 int main(int argc, char* argv[])
 {
+    // get map path
     if (argc != 2)
     {
         // Tell the user how to run the program
@@ -112,13 +142,19 @@ int main(int argc, char* argv[])
     }
     string map_path(argv[1]);
 
-    auto map = read_map(map_path);
+    // read map
+    auto starting_map = read_map(map_path);
 
+    // print map
     cout << "original map" << endl;
-    print_map(map);
+    print_map(starting_map);
 
+    // copy working map
+    auto working_map(starting_map);
+
+    // experiment
     string commands("LLL");
-    auto nu = apply_steps(map, commands);
+    auto nu = apply_steps(working_map, commands);
 
     cout << "map after steps" << endl;
     print_map(nu);
