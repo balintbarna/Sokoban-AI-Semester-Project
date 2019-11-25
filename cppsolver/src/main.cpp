@@ -395,41 +395,49 @@ void do_depth_first_search(SMap &original_map, int max_depth)
     auto working_map(original_map);
     // create open list
     deque<string> open_list;
+    vector<SMap> closed_list;
     open_list.push_back(string(""));
     // iterate until there's nothing left
-    int steps_len = 0;
+    int best = 999;
     while(open_list.empty() == false)
     {
-        auto steps = open_list.front();
-        open_list.pop_front();
+        auto steps = open_list.back();
+        open_list.pop_back();
         int nu_size = steps.size();
         if(nu_size > max_depth)
         {
-            cout << "No solution found" << endl;
-            return;
+            continue;
         }
-        bool print = nu_size != steps_len;
-        if(nu_size != steps_len)
-        {
-            cout << "Steps length: " << nu_size << endl;
-            steps_len = nu_size;
-        }
-        // cout << "Steps:"<<steps<<endl;
         working_map = original_map;
         bool did_apply = apply_steps(working_map, steps);
-        if(print)
-        {
-            cout<<"Steps:"<<steps<<endl;
-            cout<<"Map:"<<endl;
-            print_map(working_map);
-        }
         if(did_apply == false) continue;
 
-        if(check_solved(working_map) == 0)
+        int slvd = check_solved(working_map);
+        bool print = slvd < best;
+        if(print)
+        {
+            best = slvd;
+            cout<<"Steps:"<<steps<<endl;
+            print_map(working_map);
+        }
+        if(slvd == 0)
         {
             cout << "Solution found:" << steps << endl;
-            break;
+            return;
         }
+
+        // bool bused = false;
+        // for(auto used : closed_list)
+        // {
+        //     if(used == working_map)
+        //     {
+        //         bused = true;
+        //         break;
+        //     }
+        // }
+        // if(bused) continue;
+
+        // closed_list.push_back(SMap(working_map));
 
         string up(steps);
         up.push_back('u');
@@ -467,7 +475,8 @@ int main(int argc, char* argv[])
     cout << "original map" << endl;
     print_map(starting_map);
 
-    do_breadth_first_search(starting_map);
+    // do_breadth_first_search(starting_map);
+    do_depth_first_search(starting_map, 115);
 
     return 0;
 }
