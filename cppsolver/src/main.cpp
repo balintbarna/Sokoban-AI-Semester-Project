@@ -5,6 +5,8 @@
 #include <deque>
 using namespace std;
 
+typedef vector<string> SMap;
+
 const char CHAR_WALL = 'X';
 const char CHAR_GOAL = 'G';
 const char CHAR_CAN = 'J';
@@ -26,9 +28,9 @@ string S_ROBOT_ON_GOAL("☻");
 string S_ROAD(" ");
 
 
-vector<string> read_map(string &map_path)
+SMap read_map(string &map_path)
 {
-    vector<string> map;
+    SMap map;
     fstream f(map_path, fstream::in);
     string line;
     for(;;)
@@ -69,7 +71,7 @@ string convert_to_visual(char c)
     }
 }
 
-void print_map(vector<string> &map)
+void print_map(SMap &map)
 {
     for(string &s : map)
     {
@@ -81,7 +83,7 @@ void print_map(vector<string> &map)
     }
 }
 
-void print_map_as_is(vector<string> &map)
+void print_map_as_is(SMap &map)
 {
     for(string &s : map)
     {
@@ -89,7 +91,7 @@ void print_map_as_is(vector<string> &map)
     }
 }
 
-char whats_here(vector<string> &map, int x, int y)
+char whats_here(SMap &map, int x, int y)
 {
     if(y < 0 || x < 0 || y >= map.size() || x >= map[y].size())
     {
@@ -98,12 +100,12 @@ char whats_here(vector<string> &map, int x, int y)
     return map[y][x];
 }
 
-char whats_here(vector<string> &map, vector<int> &coords)
+char whats_here(SMap &map, vector<int> &coords)
 {
     return whats_here(map, coords[0], coords[1]);
 }
 
-vector<int> find_object_in(vector<string> &map, string &objects)
+vector<int> find_object_in(SMap &map, string &objects)
 {
     // cout<<"starting find object"<<endl;
     int x, y;
@@ -136,7 +138,7 @@ vector<int> find_object_in(vector<string> &map, string &objects)
     return vector<int>{x,y};
 }
 
-vector<int> find_robot(vector<string> &map)
+vector<int> find_robot(SMap &map)
 {
     // cout<<"starting find robot"<<endl;
     string objects{CHAR_ROBOT, CHAR_ROBOT_ON_GOAL};
@@ -182,7 +184,7 @@ vector<int> get_next_coord(vector<int> &current_coord, char step)
     return vector<int>{tx, ty};
 }
 
-void set_here(vector<string> &map, vector<int> &coords, char to)
+void set_here(SMap &map, vector<int> &coords, char to)
 {
     int x = coords[0];
     int y = coords[1];
@@ -235,7 +237,7 @@ char when_arriving(char on, char what)
 /**
  * returns if applying the step was successful
  */
-bool apply_step(vector<string> &map, vector<int> &current_coord, char &step)
+bool apply_step(SMap &map, vector<int> &current_coord, char &step)
 {
     auto next_coord = get_next_coord(current_coord, step);
     char at_current = whats_here(map, current_coord);
@@ -292,7 +294,7 @@ bool apply_step(vector<string> &map, vector<int> &current_coord, char &step)
 /**
  * returns if steps were successfully applied
  */
-bool apply_steps(vector<string> &map, string &steps)
+bool apply_steps(SMap &map, string &steps)
 {
     // find robot
     auto robot_pos = find_robot(map);
@@ -308,7 +310,7 @@ bool apply_steps(vector<string> &map, string &steps)
     return true;
 }
 
-int check_solved(vector<string> &map)
+int check_solved(SMap &map)
 {
     int n = 0;
     for(string &s : map)
@@ -322,6 +324,126 @@ int check_solved(vector<string> &map)
         }
     }
     return n;
+}
+
+void do_breadth_first_search(SMap &original_map)
+{
+    auto working_map(original_map);
+    // create open list
+    deque<string> open_list;
+    vector<SMap> closed_list;
+    open_list.push_back(string(""));
+    // iterate until there's nothing left
+    int steps_len = 0;
+    while(open_list.empty() == false)
+    {
+        auto steps = open_list.front();
+        open_list.pop_front();
+        int nu_size = steps.size();
+        bool print = nu_size != steps_len;
+        if(nu_size != steps_len)
+        {
+            cout << "Steps length: " << nu_size << endl;
+            steps_len = nu_size;
+        }
+        working_map = original_map;
+        bool did_apply = apply_steps(working_map, steps);
+        if(did_apply == false) continue;
+        if(print)
+        {
+            cout<<"Steps:"<<steps<<endl;
+            cout<<"Map:"<<endl;
+            print_map(working_map);
+        }
+
+        if(check_solved(working_map) == 0)
+        {
+            cout << "Solution found:" << steps << endl;
+            break;
+        }
+
+        bool bused = false;
+        for(auto used : closed_list)
+        {
+            if(used == working_map)
+            {
+                bused = true;
+                break;
+            }
+        }
+        if(bused) continue;
+
+        closed_list.push_back(SMap(working_map));
+
+        string up(steps);
+        up.push_back('u');
+        string down(steps);
+        down.push_back('d');
+        string left(steps);
+        left.push_back('l');
+        string right(steps);
+        right.push_back('r');
+        open_list.push_back(up);
+        open_list.push_back(down);
+        open_list.push_back(left);
+        open_list.push_back(right);
+    }
+}
+
+void do_depth_first_search(SMap &original_map, int max_depth)
+{
+    auto working_map(original_map);
+    // create open list
+    deque<string> open_list;
+    open_list.push_back(string(""));
+    // iterate until there's nothing left
+    int steps_len = 0;
+    while(open_list.empty() == false)
+    {
+        auto steps = open_list.front();
+        open_list.pop_front();
+        int nu_size = steps.size();
+        if(nu_size > max_depth)
+        {
+            cout << "No solution found" << endl;
+            return;
+        }
+        bool print = nu_size != steps_len;
+        if(nu_size != steps_len)
+        {
+            cout << "Steps length: " << nu_size << endl;
+            steps_len = nu_size;
+        }
+        // cout << "Steps:"<<steps<<endl;
+        working_map = original_map;
+        bool did_apply = apply_steps(working_map, steps);
+        if(print)
+        {
+            cout<<"Steps:"<<steps<<endl;
+            cout<<"Map:"<<endl;
+            print_map(working_map);
+        }
+        if(did_apply == false) continue;
+
+        if(check_solved(working_map) == 0)
+        {
+            cout << "Solution found:" << steps << endl;
+            break;
+        }
+
+        string up(steps);
+        up.push_back('u');
+        string down(steps);
+        down.push_back('d');
+        string left(steps);
+        left.push_back('l');
+        string right(steps);
+        right.push_back('r');
+        open_list.push_back(up);
+        open_list.push_back(down);
+        open_list.push_back(left);
+        open_list.push_back(right);
+    }
 }
 
 int main(int argc, char* argv[])
@@ -345,70 +467,7 @@ int main(int argc, char* argv[])
     cout << "original map" << endl;
     print_map(starting_map);
 
-    // copy working map
-    auto working_map(starting_map);
-    cout << "working map" << endl;
-    print_map(working_map);
-
-    // // experiment
-    // // get in the frist one
-    // string commands("dlllluuuurrdruuurululd");
-    // // get in second one
-    // commands.append("rdddlllddrulurrdruuurullluld");
-    // // third
-    // commands.append("rrrdddlllddddruuulurrdruuuurulll");
-    // // fourth
-    // commands.append("rrddddlllddddrrrrulldluuulurrdruuuruulldrurd");
-    // apply_steps(working_map, commands);
-    // if(check_solved(working_map) == 0)
-    // {
-    //     cout << "Solution found:" << commands << endl;
-    // }
-
-    // create open list
-    deque<string> open_list;
-    open_list.push_back(string(""));
-    // iterate until there's nothing left
-    int steps_len = 0;
-    while(open_list.empty() == false)
-    {
-        auto steps = open_list.front();
-        open_list.pop_front();
-        int nu_size = steps.size();
-        if(nu_size > 30)
-        {
-            cout << "No solution found" << endl;
-            return 69;
-        }
-        if(nu_size != steps_len)
-        {
-            cout << "Steps length: " << nu_size << endl;
-            steps_len = nu_size;
-        }
-        // cout << "Steps:"<<steps<<endl;
-        working_map = starting_map;
-        bool did_apply = apply_steps(working_map, steps);
-        if(did_apply == false) continue;
-
-        if(check_solved(working_map) == 0)
-        {
-            cout << "Solution found:" << steps << endl;
-            break;
-        }
-
-        string up(steps);
-        up.push_back('u');
-        string down(steps);
-        down.push_back('d');
-        string left(steps);
-        left.push_back('l');
-        string right(steps);
-        right.push_back('r');
-        open_list.push_back(up);
-        open_list.push_back(down);
-        open_list.push_back(left);
-        open_list.push_back(right);
-    }
+    do_breadth_first_search(starting_map);
 
     return 0;
 }
