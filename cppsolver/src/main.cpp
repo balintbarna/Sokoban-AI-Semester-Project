@@ -35,6 +35,11 @@ char whats_here(vector<string> &map, int x, int y)
     return map[y][x];
 }
 
+char whats_here(vector<string> &map, vector<int> &coords)
+{
+    return whats_here(map, coords[0], coords[1]);
+}
+
 vector<int> find_object_in(vector<string> &map, string &objects)
 {
     int x = -1, y = -1;
@@ -102,12 +107,13 @@ vector<int> get_next_coord(vector<int> &current_coord, char step)
     return vector<int>{tx, ty};
 }
 
-vector<string> apply_step(vector<string> &map, vector<int> &current_coord, char step)
+void apply_step(vector<string> &map, vector<int> &current_coord, char step)
 {
-
+    auto next_coord = get_next_coord(current_coord, step);
+    char at_next = whats_here(map, next_coord);
 }
 
-vector<string> apply_steps(vector<string> &map, string &steps)
+void apply_steps(vector<string> &map, string &steps)
 {
     // find robot
     auto robot_pos = find_robot(map);
@@ -116,10 +122,7 @@ vector<string> apply_steps(vector<string> &map, string &steps)
     for(int i = 0; i < steps.size(); i++)
     {
         char step = steps[i];
-        auto next_coord = get_next_coord(robot_pos, step);
-        int tx = next_coord[0], ty = next_coord[1];
-        char target = map[ty][tx];
-        
+        apply_step(map, robot_pos, step);
     }
 }
 
@@ -153,11 +156,11 @@ int main(int argc, char* argv[])
     auto working_map(starting_map);
 
     // experiment
-    string commands("LLL");
-    auto nu = apply_steps(working_map, commands);
+    string commands("lll");
+    apply_steps(working_map, commands);
 
     cout << "map after steps" << endl;
-    print_map(nu);
+    print_map(working_map);
 
     return 0;
 }
