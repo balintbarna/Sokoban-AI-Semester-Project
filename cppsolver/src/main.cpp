@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <deque>
+#include <list>
 using namespace std;
 
 typedef vector<string> SMap;
@@ -454,6 +455,109 @@ void do_depth_first_search(SMap &original_map, int max_depth)
     }
 }
 
+int calc_cost(int slvd, int steps_size)
+{
+    int cost = 100 * slvd + steps_size;
+    return cost;
+}
+
+void do_algorithm_astar_search(SMap &original_map)
+{
+    // make copy of map
+    auto working_map(original_map);
+    // create lists
+    list<string> open_list;    
+    vector<SMap> closed_list;
+    list<int> ol_cost;
+
+    // do init step stuff
+    string steps("");
+    open_list.push_back(steps);
+    int best_cost = 9999999;
+    ol_cost.push_back(best_cost);
+    int last_size = steps.size();
+    // iterate until there's nothing left
+    while(open_list.empty() == false)
+    {
+        // get next element
+        steps = open_list.front();
+        open_list.pop_front();
+        ol_cost.pop_front();
+        int nu_size = steps.size();
+        if(last_size != nu_size)
+        {
+            last_size = nu_size;
+            cout<<"New size:"<<nu_size<<endl;
+            cout<<"Steps:"<<steps<<endl;
+            print_map(working_map);
+        }
+        // generate new state
+        working_map = original_map;
+        bool did_apply = apply_steps(working_map, steps);
+        if(did_apply == false) continue;
+        // check if solution
+        int slvd = check_solved(working_map);
+
+        if(slvd == 0)
+        {
+            cout << "Solution found:" << steps << endl;
+            break;
+        }
+        // get cost
+        int cost = calc_cost(slvd, nu_size);
+        // print
+        if(cost < best_cost)
+        {
+            best_cost = cost;
+            cout<<"New best cost:"<<cost<<endl;
+            cout<<"Steps:"<<steps<<endl;
+            print_map(working_map);
+        }
+        // check and add to closed list
+        bool bused = false;
+        for(auto used : closed_list)
+        {
+            if(used == working_map)
+            {
+                bused = true;
+                break;
+            }
+        }
+        if(bused) continue;
+        closed_list.push_back(working_map);
+
+        // insert these based on cost
+        string up(steps);
+        up.push_back('u');
+        string down(steps);
+        down.push_back('d');
+        string left(steps);
+        left.push_back('l');
+        string right(steps);
+        right.push_back('r');
+
+        auto olit = open_list.begin();
+        auto endit = ol_cost.end();
+        for(auto it = ol_cost.begin();; it++, olit++)
+        {
+            if(it == endit || cost < *it)
+            {
+                ol_cost.insert(it, cost);
+                ol_cost.insert(it, cost);
+                ol_cost.insert(it, cost);
+                ol_cost.insert(it, cost);
+                
+                open_list.insert(olit, up);
+                open_list.insert(olit, down);
+                open_list.insert(olit, left);
+                open_list.insert(olit, right);
+
+                break;
+            }
+        }
+    }
+}
+
 int main(int argc, char* argv[])
 {
     // get map path
@@ -476,7 +580,8 @@ int main(int argc, char* argv[])
     print_map(starting_map);
 
     // do_breadth_first_search(starting_map);
-    do_depth_first_search(starting_map, 115);
+    // do_depth_first_search(starting_map, 115);
+    do_algorithm_astar_search(starting_map);
 
     return 0;
 }
