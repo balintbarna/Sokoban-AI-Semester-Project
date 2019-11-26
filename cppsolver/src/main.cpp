@@ -4,6 +4,7 @@
 #include <vector>
 #include <deque>
 #include <list>
+#include <math.h>
 using namespace std;
 
 typedef vector<string> SMap;
@@ -182,7 +183,8 @@ vector<int> get_next_coord(vector<int> &current_coord, char step)
         tx = x;
         ty = y+1;
     }
-    return vector<int>{tx, ty};
+    vector<int> ret{tx, ty};
+    return ret;
 }
 
 void set_here(SMap &map, vector<int> &coords, char to)
@@ -455,9 +457,78 @@ void do_depth_first_search(SMap &original_map, int max_depth)
     }
 }
 
-int calc_cost(int slvd, int steps_size)
+int get_dist(vector<int> coord1, vector<int> coord2)
 {
-    int cost = 100 * slvd + steps_size;
+    int x1 = coord1[0];
+    int x2 = coord2[0];
+    int y1 = coord1[1];
+    int y2 = coord2[2];
+    return sqrt(pow(x1-x2,2) + pow(y1-y2,2));
+}
+
+int calc_cost(SMap &map, string steps, int slvd)
+{
+    // solution point and steps size added
+    int cost = 50 * slvd + steps.size() *5;
+
+    vector<int> robo_pos;
+    vector<vector<int>> goals;
+    vector<vector<int>> cans;
+    for(int y = 0; y < map.size(); y++)
+    {
+        string line = map[y];
+        for(int x = 0; x < line.size(); x++)
+        {
+            char c = line[x];
+            if (c == CHAR_GOAL || c == CHAR_ROBOT_ON_GOAL)
+            {
+                goals.push_back(vector<int>{x,y});
+            }
+            if (c == CHAR_CAN)
+            {
+                vector<int> can_coord{x,y};
+                cans.push_back(can_coord);
+            }
+            if(c == CHAR_ROBOT || c == CHAR_ROBOT_ON_GOAL)
+            {
+                robo_pos.push_back(x);
+                robo_pos.push_back(y);
+            }
+        }
+    }
+    int least_robo_can_dist = 99999999;
+    for(auto ccoord : cans)
+    {
+        // robot distance
+        int dist = get_dist(robo_pos, ccoord);
+        if(dist < least_robo_can_dist)
+        {
+            least_robo_can_dist = dist;
+        }
+        // goal distance
+        int best = 99999999;
+        for(auto gcoord : goals)
+        {
+            int dist = get_dist(ccoord, gcoord);
+            if(dist < best)
+            {
+                best = dist;
+            }
+        }
+        cost += best;
+        // blocking surroundings
+        for(char c : "lrud")
+        {
+            auto bes_coord = get_next_coord(ccoord, c);
+            char b = whats_here(map, bes_coord);
+            if(b == CHAR_CAN || b == CHAR_CAN_ON_GOAL || b == CHAR_WALL)
+            {
+                cost++;
+            }
+        }
+    }
+    cost += least_robo_can_dist * 2;
+
     return cost;
 }
 
@@ -484,13 +555,13 @@ void do_algorithm_astar_search(SMap &original_map)
         open_list.pop_front();
         ol_cost.pop_front();
         int nu_size = steps.size();
-        if(last_size != nu_size)
-        {
-            last_size = nu_size;
-            cout<<"New size:"<<nu_size<<endl;
-            cout<<"Steps:"<<steps<<endl;
-            print_map(working_map);
-        }
+        // if(last_size != nu_size)
+        // {
+        //     last_size = nu_size;
+        //     cout<<"New size:"<<nu_size<<endl;
+        //     cout<<"Steps:"<<steps<<endl;
+        //     print_map(working_map);
+        // }
         // generate new state
         working_map = original_map;
         bool did_apply = apply_steps(working_map, steps);
@@ -504,7 +575,7 @@ void do_algorithm_astar_search(SMap &original_map)
             break;
         }
         // get cost
-        int cost = calc_cost(slvd, nu_size);
+        int cost = calc_cost(working_map, steps, slvd);
         // print
         if(cost < best_cost)
         {
