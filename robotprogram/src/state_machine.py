@@ -52,7 +52,7 @@ def setup_next_command():
 def run_states():
     global act_st
     if(act_st == States.FORWARD):
-        clr.update
+        clr.update()
         if(dtct.is_end_of_intersection() == False):
             ctrl.line_control()
         else:
