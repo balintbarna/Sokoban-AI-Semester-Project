@@ -26,8 +26,6 @@ def is_start_of_intersection():
     Tells if the sensors are right at the start of an intersection line.
     Constants need to be configured right to detect blackness.
     """
-    global color_last
-
     color_was = color_last
     color_actual = is_above_intersection()
 
@@ -41,8 +39,6 @@ def is_end_of_intersection():
     Tells if the sensors are right above an intersection.
     Constants need to be configured right to detect blackness.
     """
-    global color_last
-
     color_was = color_last
     color_actual = is_above_intersection()
 
@@ -55,10 +51,8 @@ def is_turn_finished():
     """
     Tells if the turn, which was setup with turn_setup(), is completed, by reading the gyro values.
     Completion treshhol needs to be configured properly.
-    """
-    setp = ctrl.turn_pid.setpoint
-    actual = gyro.val
-    finished = abs(actual - setp) < cnst.TURN_OK_ERROR_THRESHOLD
+    """ 
+    finished = abs(gyro.val - ctrl.turn_pid.setpoint) < cnst.TURN_OK_ERROR_THRESHOLD
     return finished
 
 can_push_timer = time.perf_counter()

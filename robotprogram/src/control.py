@@ -54,4 +54,4 @@ def turn_control():
     """
     global turn_pid
     val = turn_pid(gyro.val)
-    mtr.setDutyLR(val, 0 - val)
+    mtr.setDutyLR(val, -val)

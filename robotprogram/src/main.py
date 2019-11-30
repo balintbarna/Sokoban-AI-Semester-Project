@@ -149,7 +149,7 @@ cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRdld
 counter = 0
 # main loop
 while True:
-	if(counter % 50 == 0):
+	if(counter == 50):
 		check_exit_condition()
 		counter = 0
 	# control_main()
