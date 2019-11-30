@@ -52,12 +52,14 @@ def setup_next_command():
 def run_states():
     global act_st
     if(act_st == States.FORWARD):
+        clr.update
         if(dtct.is_end_of_intersection() == False):
             ctrl.line_control()
         else:
             setup_next_command()
 
     elif(act_st == States.TURNING):
+        gyro.get()
         if(dtct.is_turn_finished() == False):
             ctrl.turn_control()
         else:
@@ -65,10 +67,12 @@ def run_states():
 
     elif(act_st == States.PUSHING_CAN):
         if(dtct.is_can_pushed() == False):
+            clr.update()
             ctrl.line_control()
         else:
             dtct.setup_detect_go_backwards()
             act_st = States.BACKWARD
+            mtr.setDuty(cnst.BACKWARD_SPEED)
 
     elif(act_st == States.BACKWARD):
         if(dtct.is_going_backwards_finished() == False):
@@ -84,5 +88,6 @@ def run_states():
         mtr.stop()
         setup_next_command()
     else:
+        print("Unsupported state:", act_st)
         setup_next_command()
 

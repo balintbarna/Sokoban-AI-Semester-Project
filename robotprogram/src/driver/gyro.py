@@ -18,9 +18,12 @@ def raw():
     """get raw value as float from sensor"""
     return sensor.value() * 1.0 / pow(10, dec)
 
+val = 0.0
 def get():
     """get offseted value, after zeroing"""
-    return sensor.value() - offset
+    global val
+    val = raw() - offset
+    return val
 
 def reset():
     """do the offseting/zeroing"""

@@ -12,10 +12,8 @@ def setup_intersection_detection():
 
 def is_above_intersection():
     global color_last
-    leftLight = clr.getLeft()
-    rightLight = clr.getRight()
     # both sensor inputs should be darker than lightest black
-    if(leftLight < cnst.BLACK_THRESHOLD_MAX and rightLight < cnst.BLACK_THRESHOLD_MAX):
+    if(clr.leftVal < cnst.BLACK_THRESHOLD_MAX and clr.rightVal < cnst.BLACK_THRESHOLD_MAX):
         # black
         color_last = True
     else:
@@ -48,7 +46,7 @@ def is_end_of_intersection():
     color_was = color_last
     color_actual = is_above_intersection()
 
-    if(color_was == True and color_actual == False): # if it turned white from back, we say it's intersection
+    if(color_was == True and color_actual == False): # if it turned white from black, we say it's intersection
         return True
     else:
         return False
@@ -59,7 +57,7 @@ def is_turn_finished():
     Completion treshhol needs to be configured properly.
     """
     setp = ctrl.turn_pid.setpoint
-    actual = gyro.get()
+    actual = gyro.val
     finished = abs(actual - setp) < cnst.TURN_OK_ERROR_THRESHOLD
     return finished
 

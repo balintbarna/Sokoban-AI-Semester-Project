@@ -17,9 +17,7 @@ def line_control():
     This control, called repeatedly, should make the robot follow the line.
     """
     global line_pid
-    leftLight = clr.getLeft()
-    rightLight = clr.getRight()
-    diff = leftLight - rightLight
+    diff = clr.leftVal - clr.rightVal
 	# positive diff means turn left
 	# setpoint is 0
 	# error is setpoint - input
@@ -55,5 +53,5 @@ def turn_control():
     This will turn the robot with an appropriate rate until it is repeatedly called.
     """
     global turn_pid
-    val = turn_pid(gyro.get())
+    val = turn_pid(gyro.val)
     mtr.setDutyLR(val, 0 - val)
