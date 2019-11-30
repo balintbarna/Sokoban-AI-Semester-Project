@@ -41,8 +41,8 @@ def turn_setup(set_deg = 0.0):
     This should be called right before you start turning at an intersection.
     """
     global turn_pid
-    turn_pid.setpoint = set_deg
     turn_pid.reset()
+    turn_pid.setpoint = set_deg
     gyro.reset()
 
 
