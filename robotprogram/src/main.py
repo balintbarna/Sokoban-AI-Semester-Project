@@ -105,18 +105,14 @@ def translate_solution(sol = ""):
 			clist.append(get_turn(turn))
 			d = newd
 		pushing = c != lowc
+		clist.append(cmd.Command.GO_STRAIGHT)
 		if(pushing):
 			nexti = i+1
 			if(nexti < sollen and c == sol[nexti]):
-				clist.append(cmd.Command.GO_STRAIGHT)
+				s = 0
 			else:
 				clist.append(cmd.Command.PUSH_CAN_AND_RETURN)
-		else:
-			clist.append(cmd.Command.GO_STRAIGHT)
 	return clist
-		
-
-
 
 # cmd.cmdlist = cmd.deque([
 # cmd.Command.GO_STRAIGHT,
@@ -140,14 +136,14 @@ def translate_solution(sol = ""):
 # cmd.Command.TURN_AROUND])
 
 
-cmd.cmdlist = cmd.deque(translate_solution("uulurudlruUUlLR"))
+cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRdldlluluulldRurDDrdLLdlluRRRRRdrUUruulldRurDurrdLulldddllululDrdLdlluRRRRRdrUUdllulullDrddlluRRRRRdrU"))
 
 
-print ("commands")
-for command in cmd.cmdlist:
-	print (command)
+# print ("commands")
+# for command in cmd.cmdlist:
+# 	print (command)
 
-shutdown()
+# shutdown()
 
 # main loop
 while True:
