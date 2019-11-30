@@ -16,6 +16,7 @@ import driver.gyro as gyro
 # pid controller class
 from external.simple_pid import PID
 
+import constants as cnst
 import control as ctrl
 import mini_programs as prg
 import command_handler as cmd
@@ -90,7 +91,7 @@ def get_turn(turn):
 
 def translate_solution(sol = ""):
 	# set starting direction
-	d = what_direction('u')
+	d = what_direction(cnst.START_DIRECTION)
 	clist = []
 	# go through all commands
 	sollen = len(sol)

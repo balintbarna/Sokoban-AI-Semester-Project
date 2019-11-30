@@ -1,7 +1,7 @@
 # collect all parameters here for easy configuration
 
-LINE_PID_P = 0.2
-LINE_PID_D = 0.02
+LINE_PID_P = 0.1
+LINE_PID_D = 0.01
 LINE_PID_I = 0.0
 
 TURN_PID_P = 2.0
@@ -17,3 +17,5 @@ TURN_OK_ERROR_THRESHOLD = 8
 
 CAN_PUSH_TIME = 1.15
 GO_BACK_TRESHOLD_TIME = 3
+
+START_DIRECTION = 'l'
