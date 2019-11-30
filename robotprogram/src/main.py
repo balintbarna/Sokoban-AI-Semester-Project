@@ -142,7 +142,7 @@ def translate_solution(sol = ""):
 # cmd.Command.TURN_AROUND])
 
 
-cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRdldlluluulldRurDDrdLLdlluRRRRRdrUUruulldRurDurrdLulldddllululDrdLdlluRRRRRdrUUdllulullDrddlluRRRRRdrU"))
+cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRdldlluluulldRurDDrdLLdlluRRRRRdrUUruulldRurDurrdLulldddllluulDrdLdlluRRRRRdrUUdllluullDrddlluRRRRRdrU"))
 
 
 # print ("commands")
