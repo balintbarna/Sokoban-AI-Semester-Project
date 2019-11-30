@@ -14,7 +14,7 @@ import driver.touch as touch
 import driver.gyro as gyro
 
 # pid controller class
-from simple_pid import PID
+from external.simple_pid import PID
 
 import control as ctrl
 import mini_programs as prg

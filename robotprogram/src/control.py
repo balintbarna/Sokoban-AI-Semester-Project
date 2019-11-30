@@ -3,7 +3,7 @@ import driver.motor as mtr
 import driver.gyro as gyro
 import constants as cnst
 
-from simple_pid import PID
+from external.simple_pid import PID
 
 
 # MOVE STRAIGHT
