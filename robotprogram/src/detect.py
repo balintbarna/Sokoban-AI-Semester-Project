@@ -70,10 +70,17 @@ def setup_detect_go_backwards():
     global backwards_timer
     backwards_timer = time.perf_counter()
 
+# def is_going_backwards_finished():
+#     elapsed_time = time.perf_counter() - backwards_timer
+#     temp = is_end_of_intersection()
+#     if(elapsed_time < cnst.GO_BACK_TRESHOLD_TIME):
+#         return False
+#     else:
+#         return temp
+
 def is_going_backwards_finished():
     elapsed_time = time.perf_counter() - backwards_timer
-    temp = is_end_of_intersection()
     if(elapsed_time < cnst.GO_BACK_TRESHOLD_TIME):
         return False
     else:
-        return temp
+        return True

@@ -113,6 +113,11 @@ def translate_solution(sol = ""):
 				s = 0
 			else:
 				clist.append(cmd.Command.PUSH_CAN_AND_RETURN)
+				clist.append(cmd.Command.TURN_AROUND)
+				clist.append(cmd.Command.GO_STRAIGHT)
+				d = d + 2
+				if d > 3:
+					d = d - 4
 	return clist
 
 # cmd.cmdlist = cmd.deque([

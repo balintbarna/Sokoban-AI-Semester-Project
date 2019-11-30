@@ -75,14 +75,8 @@ def run_states():
             mtr.setDuty(cnst.BACKWARD_SPEED)
 
     elif(act_st == States.BACKWARD):
-        if(dtct.is_going_backwards_finished() == False):
-            # mtr.backwards()
-            # ctrl.line_control()
-	        mtr.setDuty(cnst.BACKWARD_SPEED)
-        else:
-            # mtr.forwards()
-            # setup_next_command()
-            act_st = States.FORWARD
+        if(dtct.is_going_backwards_finished()):
+            setup_next_command()
     
     elif(act_st == States.STOPPING):
         mtr.stop()
