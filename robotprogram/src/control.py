@@ -31,7 +31,12 @@ def line_control():
 
 # TURNING
 
-turn_pid = PID(cnst.TURN_PID_P, cnst.TURN_PID_I, cnst.TURN_PID_D, 0.0)
+# turn_pid = PID(cnst.TURN_PID_P, cnst.TURN_PID_I, cnst.TURN_PID_D, 0.0)
+turn_pid = PID(Kp=cnst.TURN_PID_P, Ki=cnst.TURN_PID_I, Kd=cnst.TURN_PID_D,
+                 setpoint=0.0,
+                 sample_time=None,
+                 output_limits=(-100.0, 100.0))
+turn_sp = 0.0
 
 def turn_setup(set_deg = 0.0):
     """
@@ -41,8 +46,10 @@ def turn_setup(set_deg = 0.0):
     This should be called right before you start turning at an intersection.
     """
     global turn_pid
+    global turn_sp
     turn_pid.reset()
     turn_pid.setpoint = set_deg
+    turn_sp = set_deg
     gyro.reset()
 
 

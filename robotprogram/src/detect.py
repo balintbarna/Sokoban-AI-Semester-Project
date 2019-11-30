@@ -47,13 +47,19 @@ def is_end_of_intersection():
     else:
         return False
 
+turn_finished_counter = 0
 def is_turn_finished():
     """
     Tells if the turn, which was setup with turn_setup(), is completed, by reading the gyro values.
     Completion treshhol needs to be configured properly.
     """ 
-    finished = abs(gyro.val - ctrl.turn_pid.setpoint) < cnst.TURN_OK_ERROR_THRESHOLD
-    return finished
+    global turn_finished_counter
+    finished = abs(gyro.val - ctrl.turn_sp) < cnst.TURN_OK_ERROR_THRESHOLD
+    if(finished):
+        turn_finished_counter = turn_finished_counter + 1
+    else:
+        turn_finished_counter = 0
+    return turn_finished_counter == cnst.EXTRA_CYCLE_AFTER_TURN
 
 can_push_timer = time.perf_counter()
 def setup_detect_can_push():
