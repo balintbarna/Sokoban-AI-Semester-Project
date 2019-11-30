@@ -7,8 +7,10 @@ from external.simple_pid import PID
 
 
 # MOVE STRAIGHT
-
-line_pid = PID(cnst.LINE_PID_P, cnst.LINE_PID_I, cnst.LINE_PID_D, 0.0) # PID object for line follower
+# PID object for line follower
+line_pid = PID(Kp=cnst.LINE_PID_P, Ki=cnst.LINE_PID_I, Kd=cnst.LINE_PID_D,
+                 setpoint=0.0,
+                 sample_time=None)
 BASE_SPEED = cnst.FORWARD_SPEED
 def line_control():
     """
@@ -31,7 +33,6 @@ def line_control():
 
 # TURNING
 
-# turn_pid = PID(cnst.TURN_PID_P, cnst.TURN_PID_I, cnst.TURN_PID_D, 0.0)
 turn_pid = PID(Kp=cnst.TURN_PID_P, Ki=cnst.TURN_PID_I, Kd=cnst.TURN_PID_D,
                  setpoint=0.0,
                  sample_time=None,
