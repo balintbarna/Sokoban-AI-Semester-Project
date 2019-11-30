@@ -146,8 +146,12 @@ cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRdld
 
 # shutdown()
 
+counter = 0
 # main loop
 while True:
-	check_exit_condition()
+	if(counter % 50 == 0):
+		check_exit_condition()
+		counter = 0
 	# control_main()
 	stm.run_states()
+	counter = counter + 1
