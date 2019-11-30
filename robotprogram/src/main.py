@@ -70,27 +70,84 @@ def control_main():
 
 	prg.turn_right_every_time()
 
+def what_direction(lowc):
+	if(lowc == 'u'):
+		return 0
+	if(lowc == 'r'):
+		return 1
+	if(lowc == 'd'):
+		return 2
+	if(lowc == 'l'):
+		return 3
 
-cmd.cmdlist = cmd.deque([
-cmd.Command.GO_STRAIGHT,
-cmd.Command.TURN_RIGHT,
-cmd.Command.GO_STRAIGHT,
-cmd.Command.PUSH_CAN_AND_RETURN,
-cmd.Command.TURN_RIGHT,
-cmd.Command.GO_STRAIGHT,
-cmd.Command.TURN_LEFT,
-cmd.Command.GO_STRAIGHT,
-cmd.Command.TURN_LEFT,
-cmd.Command.GO_STRAIGHT,
-cmd.Command.GO_STRAIGHT,
-cmd.Command.PUSH_CAN_AND_RETURN,
-cmd.Command.TURN_LEFT,
-cmd.Command.GO_STRAIGHT,
-cmd.Command.GO_STRAIGHT,
-cmd.Command.TURN_LEFT,
-cmd.Command.GO_STRAIGHT,
-cmd.Command.GO_STRAIGHT,
-cmd.Command.TURN_AROUND])
+def get_turn(turn):
+	if(turn == 1):
+		return cmd.Command.TURN_RIGHT
+	if(turn == 2):
+		return cmd.Command.TURN_AROUND
+	if(turn == 3):
+		return cmd.Command.TURN_LEFT
+
+def translate_solution(sol = ""):
+	# set starting direction
+	d = what_direction('u')
+	clist = []
+	# go through all commands
+	sollen = len(sol)
+	for i in range (0, sollen):
+		c = sol[i]
+		lowc = c.lower()
+		newd = what_direction(lowc)
+		turn = newd - d
+		if(turn < 0):
+			turn = turn + 4
+		if(turn > 0):
+			clist.append(get_turn(turn))
+			d = newd
+		pushing = c != lowc
+		if(pushing):
+			nexti = i+1
+			if(nexti < sollen and c == sol[nexti]):
+				clist.append(cmd.Command.GO_STRAIGHT)
+			else:
+				clist.append(cmd.Command.PUSH_CAN_AND_RETURN)
+		else:
+			clist.append(cmd.Command.GO_STRAIGHT)
+	return clist
+		
+
+
+
+# cmd.cmdlist = cmd.deque([
+# cmd.Command.GO_STRAIGHT,
+# cmd.Command.TURN_RIGHT,
+# cmd.Command.GO_STRAIGHT,
+# cmd.Command.PUSH_CAN_AND_RETURN,
+# cmd.Command.TURN_RIGHT,
+# cmd.Command.GO_STRAIGHT,
+# cmd.Command.TURN_LEFT,
+# cmd.Command.GO_STRAIGHT,
+# cmd.Command.TURN_LEFT,
+# cmd.Command.GO_STRAIGHT,
+# cmd.Command.GO_STRAIGHT,
+# cmd.Command.PUSH_CAN_AND_RETURN,
+# cmd.Command.TURN_LEFT,
+# cmd.Command.GO_STRAIGHT,
+# cmd.Command.GO_STRAIGHT,
+# cmd.Command.TURN_LEFT,
+# cmd.Command.GO_STRAIGHT,
+# cmd.Command.GO_STRAIGHT,
+# cmd.Command.TURN_AROUND])
+
+
+cmd.cmdlist = cmd.deque(translate_solution("uulurudlruUUlLR"))
+
+
+print ("commands")
+for command in cmd.cmdlist:
+	print (command)
+
+shutdown()
 
 # main loop
 while True:
