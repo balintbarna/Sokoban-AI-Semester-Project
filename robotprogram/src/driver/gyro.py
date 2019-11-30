@@ -16,7 +16,7 @@ offset = 0.0
 
 def raw():
     """get raw value as float from sensor"""
-    return sensor.value() * 1.0 / pow(10, dec)
+    return sensor.value()
 
 val = 0.0
 def get():
