@@ -16,6 +16,7 @@ import driver.gyro as gyro
 # pid controller class
 from external.simple_pid import PID
 
+import constants as cnst
 import control as ctrl
 import mini_programs as prg
 import command_handler as cmd
@@ -90,7 +91,7 @@ def get_turn(turn):
 
 def translate_solution(sol = ""):
 	# set starting direction
-	d = what_direction('u')
+	d = what_direction(cnst.START_DIRECTION)
 	clist = []
 	# go through all commands
 	sollen = len(sol)
@@ -108,10 +109,17 @@ def translate_solution(sol = ""):
 		clist.append(cmd.Command.GO_STRAIGHT)
 		if(pushing):
 			nexti = i+1
-			if(nexti < sollen and c == sol[nexti]):
+			last = nexti == sollen
+			if(not last and c == sol[nexti]):
 				s = 0
 			else:
 				clist.append(cmd.Command.PUSH_CAN_AND_RETURN)
+				if(not last):
+					clist.append(cmd.Command.TURN_AROUND)
+					clist.append(cmd.Command.GO_STRAIGHT)
+				d = d + 2
+				if d > 3:
+					d = d - 4
 	return clist
 
 # cmd.cmdlist = cmd.deque([
@@ -136,7 +144,7 @@ def translate_solution(sol = ""):
 # cmd.Command.TURN_AROUND])
 
 
-cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRdldlluluulldRurDDrdLLdlluRRRRRdrUUruulldRurDurrdLulldddllululDrdLdlluRRRRRdrUUdllulullDrddlluRRRRRdrU"))
+cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRlddllluuulldRurDDrdLLdlluRRRRRdrUUruulldRurDurrdLulldddllluulDrdLdlluRRRRRdrUUdllluullDrddlluRRRRRdrU"))
 
 
 # print ("commands")
@@ -147,6 +155,4 @@ cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRdld
 
 # main loop
 while True:
-	check_exit_condition()
-	# control_main()
 	stm.run_states()

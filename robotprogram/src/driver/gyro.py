@@ -9,18 +9,21 @@ sensor.mode = sensor.MODE_GYRO_ANG
 # check return value decimals, because value is int
 dec = sensor.decimals
 
-print('Gyro units: ' + sensor.units)
+# print('Gyro units: ' + sensor.units)
 
 # offset will be used to zero the angle value before turning
 offset = 0.0
 
 def raw():
     """get raw value as float from sensor"""
-    return sensor.value() * 1.0 / pow(10, dec)
+    return sensor.value()
 
+val = 0.0
 def get():
     """get offseted value, after zeroing"""
-    return sensor.value() - offset
+    global val
+    val = raw() - offset
+    return val
 
 def reset():
     """do the offseting/zeroing"""

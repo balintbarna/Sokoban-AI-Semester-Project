@@ -7,8 +7,10 @@ from external.simple_pid import PID
 
 
 # MOVE STRAIGHT
-
-line_pid = PID(cnst.LINE_PID_P, cnst.LINE_PID_I, cnst.LINE_PID_D, 0.0) # PID object for line follower
+# PID object for line follower
+line_pid = PID(Kp=cnst.LINE_PID_P, Ki=cnst.LINE_PID_I, Kd=cnst.LINE_PID_D,
+                 setpoint=0.0,
+                 sample_time=None)
 BASE_SPEED = cnst.FORWARD_SPEED
 def line_control():
     """
@@ -17,9 +19,7 @@ def line_control():
     This control, called repeatedly, should make the robot follow the line.
     """
     global line_pid
-    leftLight = clr.getLeft()
-    rightLight = clr.getRight()
-    diff = leftLight - rightLight
+    diff = clr.leftVal - clr.rightVal
 	# positive diff means turn left
 	# setpoint is 0
 	# error is setpoint - input
@@ -33,7 +33,11 @@ def line_control():
 
 # TURNING
 
-turn_pid = PID(cnst.TURN_PID_P, cnst.TURN_PID_I, cnst.TURN_PID_D, 0.0)
+turn_pid = PID(Kp=cnst.TURN_PID_P, Ki=cnst.TURN_PID_I, Kd=cnst.TURN_PID_D,
+                 setpoint=0.0,
+                 sample_time=None,
+                 output_limits=(-100.0, 100.0))
+turn_sp = 0.0
 
 def turn_setup(set_deg = 0.0):
     """
@@ -43,8 +47,10 @@ def turn_setup(set_deg = 0.0):
     This should be called right before you start turning at an intersection.
     """
     global turn_pid
-    turn_pid.setpoint = set_deg
+    global turn_sp
     turn_pid.reset()
+    turn_pid.setpoint = set_deg
+    turn_sp = set_deg
     gyro.reset()
 
 
@@ -55,5 +61,5 @@ def turn_control():
     This will turn the robot with an appropriate rate until it is repeatedly called.
     """
     global turn_pid
-    val = turn_pid(gyro.get())
-    mtr.setDutyLR(val, 0 - val)
+    val = turn_pid(gyro.val)
+    mtr.setDutyLR(val, -val)

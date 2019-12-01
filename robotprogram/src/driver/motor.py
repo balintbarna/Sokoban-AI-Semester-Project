@@ -22,31 +22,33 @@ def stop():
     """brake with the motors"""
     setDuty(0)
 
-def setDuty(duty):
+def setDuty(duty = 0.0):
     """set voltage % for both motors, rarely used"""
     setDutyLR(duty, duty)
 
-def setDutyLR(dutyL, dutyR):
+def setDutyLR(dutyL = 0.0, dutyR = 0.0):
     """
     Set voltage % for motors separately, from -100 to 100. Negative means reversed polarity.
     In case that abs(value) is bigger than 100, both values will be divided by the same number, so that the bigger abs(value) becomes 100.
     """
     # this will limit duty values between -100 and 100
-    if(abs(dutyL) > 100 or abs(dutyR) > 100):
+    maxD = 100.0
+    aDutyL = abs(dutyL)
+    aDutyR = abs(dutyR)
+    if(aDutyL > maxD or aDutyR > maxD):
         ratio = 0.0
-        if(abs(dutyL) > abs(dutyR)):
-            ratio = dutyL/100.0
+        if(aDutyL > aDutyR):
+            ratio = aDutyL/maxD
         else:
-            ratio = dutyR/100.0
+            ratio = aDutyR/maxD
         
         # ratio should not change sign of duty values
-        ratio = abs(ratio)
         dutyL = dutyL / ratio
         dutyR = dutyR / ratio
     
     # set duties according to library
-    left.duty_cycle_sp = dutyL
-    right.duty_cycle_sp = dutyR
+    left.run_forever(speed_sp=dutyL*9)
+    right.run_forever(speed_sp=dutyR*9)
 
 def power():
     """this powers on the motors after coast()"""
