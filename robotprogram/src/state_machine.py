@@ -23,6 +23,7 @@ class States(Enum):
 act_st = States.DEFAULT
 
 def setup_next_command():
+    """Gets the next command from the command queue and sets up the state machine"""
     global act_st
     if(len(cmd.cmdlist) > 0):
         command = cmd.cmdlist.popleft()
@@ -50,6 +51,7 @@ def setup_next_command():
         
 
 def run_states():
+    """State machine. Calls functions depending on current state and inputs."""
     global act_st
     if(act_st == States.FORWARD):
         clr.update()
