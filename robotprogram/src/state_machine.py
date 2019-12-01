@@ -26,7 +26,7 @@ def setup_next_command():
     global act_st
     if(len(cmd.cmdlist) > 0):
         command = cmd.cmdlist.popleft()
-        print("Next command: " + repr(command))
+        # print("Next command: " + repr(command))
         if(command == Cmd.GO_STRAIGHT):
             act_st = States.FORWARD
         elif(command == Cmd.TURN_RIGHT):
@@ -53,7 +53,7 @@ def run_states():
     global act_st
     if(act_st == States.FORWARD):
         clr.update()
-        if(dtct.is_end_of_intersection() == False):
+        if(dtct.is_start_of_intersection() == False):
             ctrl.line_control()
         else:
             setup_next_command()

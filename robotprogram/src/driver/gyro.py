@@ -9,7 +9,7 @@ sensor.mode = sensor.MODE_GYRO_ANG
 # check return value decimals, because value is int
 dec = sensor.decimals
 
-print('Gyro units: ' + sensor.units)
+# print('Gyro units: ' + sensor.units)
 
 # offset will be used to zero the angle value before turning
 offset = 0.0

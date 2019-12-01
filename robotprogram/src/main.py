@@ -109,12 +109,14 @@ def translate_solution(sol = ""):
 		clist.append(cmd.Command.GO_STRAIGHT)
 		if(pushing):
 			nexti = i+1
-			if(nexti < sollen and c == sol[nexti]):
+			last = nexti == sollen
+			if(not last and c == sol[nexti]):
 				s = 0
 			else:
 				clist.append(cmd.Command.PUSH_CAN_AND_RETURN)
-				clist.append(cmd.Command.TURN_AROUND)
-				clist.append(cmd.Command.GO_STRAIGHT)
+				if(not last):
+					clist.append(cmd.Command.TURN_AROUND)
+					clist.append(cmd.Command.GO_STRAIGHT)
 				d = d + 2
 				if d > 3:
 					d = d - 4
@@ -142,7 +144,7 @@ def translate_solution(sol = ""):
 # cmd.Command.TURN_AROUND])
 
 
-cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRdldlluluulldRurDDrdLLdlluRRRRRdrUUruulldRurDurrdLulldddllluulDrdLdlluRRRRRdrUUdllluullDrddlluRRRRRdrU"))
+cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRlddllluuulldRurDDrdLLdlluRRRRRdrUUruulldRurDurrdLulldddllluulDrdLdlluRRRRRdrUUdllluullDrddlluRRRRRdrU"))
 
 
 # print ("commands")

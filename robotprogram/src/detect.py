@@ -54,7 +54,11 @@ def is_turn_finished():
     Completion treshhol needs to be configured properly.
     """ 
     global turn_finished_counter
-    finished = abs(gyro.val - ctrl.turn_sp) < cnst.TURN_OK_ERROR_THRESHOLD
+    diff = abs(gyro.val - ctrl.turn_sp)
+    finished = diff < cnst.TURN_OK_ERROR_THRESHOLD
+    far_from_finished = diff > cnst.TURN_ACTIVATE_INTEGRAL_THRESHOLD
+    if(far_from_finished):
+        ctrl.turn_pid._integral = 0
     if(finished):
         turn_finished_counter = turn_finished_counter + 1
     else:
