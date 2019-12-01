@@ -18,7 +18,6 @@ from external.simple_pid import PID
 
 import constants as cnst
 import control as ctrl
-import mini_programs as prg
 import command_handler as cmd
 import state_machine as stm
 from driver.shutdown import *
@@ -43,35 +42,10 @@ def check_exit_condition():
 
 #  LOGIC  ----------------------------------------
 
-state = "default"
+# interpret solution
 
-# main control function used for testing right now, called from main loop
-def control_main():
-	"""
-	This is the control function called from the main loop.
-	It should not be blocking in the future, but right now it is.
-	Control functions are written so that they are not blocking, they return quickly,
-	therefore a state machine will need to be implemented to store current state and 
-	repeatedly call the non-blocking control functions.
-	Right now for testing, we just call the mini programs.
-	"""
-
-	# global state
-	# if(ctrl.detect_intersection()):
-	# 	state = "stop"
-	# if(state == "default" or state == "go-straight"):
-	# 	ctrl.line_follow()
-	# if(state == "stop"):
-	# 	mtr.stop()
-	# 	sleep(1)
-	# 	state = "turn-right"
-	# if(state == "turn-right"):
-	# 	ctrl.turn(90)
-	# 	state = "go-straight"
-
-	prg.turn_right_every_time()
-
-def what_direction(lowc):
+def what_direction(lowc = 'u'):
+	"""Returns number for direction char, used to determine how much robot should turn"""
 	if(lowc == 'u'):
 		return 0
 	if(lowc == 'r'):
@@ -81,7 +55,8 @@ def what_direction(lowc):
 	if(lowc == 'l'):
 		return 3
 
-def get_turn(turn):
+def get_turn(turn = 1):
+	"""Returns command matching for how much the robot should turn"""
 	if(turn == 1):
 		return cmd.Command.TURN_RIGHT
 	if(turn == 2):
@@ -90,6 +65,7 @@ def get_turn(turn):
 		return cmd.Command.TURN_LEFT
 
 def translate_solution(sol = ""):
+	"""Translates solution string to commands the robot can do"""
 	# set starting direction
 	d = what_direction(cnst.START_DIRECTION)
 	clist = []
@@ -122,37 +98,9 @@ def translate_solution(sol = ""):
 					d = d - 4
 	return clist
 
-# cmd.cmdlist = cmd.deque([
-# cmd.Command.GO_STRAIGHT,
-# cmd.Command.TURN_RIGHT,
-# cmd.Command.GO_STRAIGHT,
-# cmd.Command.PUSH_CAN_AND_RETURN,
-# cmd.Command.TURN_RIGHT,
-# cmd.Command.GO_STRAIGHT,
-# cmd.Command.TURN_LEFT,
-# cmd.Command.GO_STRAIGHT,
-# cmd.Command.TURN_LEFT,
-# cmd.Command.GO_STRAIGHT,
-# cmd.Command.GO_STRAIGHT,
-# cmd.Command.PUSH_CAN_AND_RETURN,
-# cmd.Command.TURN_LEFT,
-# cmd.Command.GO_STRAIGHT,
-# cmd.Command.GO_STRAIGHT,
-# cmd.Command.TURN_LEFT,
-# cmd.Command.GO_STRAIGHT,
-# cmd.Command.GO_STRAIGHT,
-# cmd.Command.TURN_AROUND])
-
-
 cmd.cmdlist = cmd.deque(translate_solution("llllUdrruLdldlluRRRRRdrUUruulldRRlddllluuulldRurDDrdLLdlluRRRRRdrUUruulldRurDurrdLulldddllluulDrdLdlluRRRRRdrUUdllluullDrddlluRRRRRdrU"))
 
-
-# print ("commands")
-# for command in cmd.cmdlist:
-# 	print (command)
-
-# shutdown()
-
 # main loop
+# runs until there's no more steps and the program comes to a halt
 while True:
 	stm.run_states()

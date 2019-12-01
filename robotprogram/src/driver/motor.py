@@ -23,12 +23,12 @@ def stop():
     setDuty(0)
 
 def setDuty(duty = 0.0):
-    """set voltage % for both motors, rarely used"""
+    """set speed % for both motors, rarely used"""
     setDutyLR(duty, duty)
 
 def setDutyLR(dutyL = 0.0, dutyR = 0.0):
     """
-    Set voltage % for motors separately, from -100 to 100. Negative means reversed polarity.
+    Set speed % for motors separately, from -100 to 100. Negative means reversed polarity.
     In case that abs(value) is bigger than 100, both values will be divided by the same number, so that the bigger abs(value) becomes 100.
     """
     # this will limit duty values between -100 and 100

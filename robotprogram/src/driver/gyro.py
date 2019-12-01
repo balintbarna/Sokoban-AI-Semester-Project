@@ -20,7 +20,7 @@ def raw():
 
 val = 0.0
 def get():
-    """get offseted value, after zeroing"""
+    """get offseted value, after zeroing, save to variable to cache"""
     global val
     val = raw() - offset
     return val

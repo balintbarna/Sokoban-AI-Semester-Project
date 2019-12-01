@@ -16,6 +16,7 @@ def getRight():
     return rightVal
 
 def update():
+    """Update cached values"""
     getLeft()
     getRight()
 
