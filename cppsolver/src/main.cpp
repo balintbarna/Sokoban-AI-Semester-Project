@@ -835,7 +835,7 @@ int check_dead(SMap &map, vector<vector<int>> cans)
 int calc_cost(SMap &map, string steps)
 {
     // solution point and steps size added
-    int cost = 0;
+    int cost = 1;
 
     vector<int> robo_pos;
     vector<vector<int>> goals;
@@ -862,12 +862,13 @@ int calc_cost(SMap &map, string steps)
             }
         }
     }
+    if(cans.size() == 0) return 0;
     int dead = check_dead(map, cans);
     if(dead>0)
     {
         return -1;
     }
-    int least_robo_can_dist = 99999999;
+    int least_robo_can_dist = 9999;
     for(auto ccoord : cans)
     {
         // robot distance
@@ -877,7 +878,7 @@ int calc_cost(SMap &map, string steps)
             least_robo_can_dist = dist;
         }
         // goal distance
-        int best = 99999999;
+        int best = 9999;
         for(auto gcoord : goals)
         {
             dist = get_manhattan_dist(ccoord, gcoord);
@@ -886,7 +887,7 @@ int calc_cost(SMap &map, string steps)
                 best = dist;
             }
         }
-        cost += best;
+        cost += best*25;
         // blocking surroundings
         // for(char c : "lrud")
         // {
@@ -898,7 +899,7 @@ int calc_cost(SMap &map, string steps)
         //     }
         // }
     }
-    cost += least_robo_can_dist;
+    cost += least_robo_can_dist*5;
 
     cost += steps.size();
 
@@ -938,12 +939,6 @@ void do_algorithm_astar_search(SMap &original_map)
         {
             continue;
         }
-        // check if solution
-        if(cost == 0)
-        {
-            cout << "Solution found:" << steps << endl;
-            break;
-        }
         // print
         if(cost < best_cost)
         {
@@ -951,6 +946,12 @@ void do_algorithm_astar_search(SMap &original_map)
             cout<<"New best cost:"<<cost<<endl;
             cout<<"Steps:"<<steps<<endl;
             print_map(working_map);
+        }
+        // check if solution
+        if(cost == 0)
+        {
+            cout << "Solution found:" << steps << endl;
+            break;
         }
         // check and add to closed list
         bool skip = false;
