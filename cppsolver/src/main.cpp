@@ -900,6 +900,8 @@ int calc_cost(SMap &map, string steps)
     }
     cost += least_robo_can_dist;
 
+    cost += steps.size();
+
     return cost;
 }
 
@@ -911,6 +913,7 @@ void do_algorithm_astar_search(SMap &original_map)
     list<string> open_list;    
     vector<SMap> closed_list;
     list<int> ol_cost;
+    vector<int> cl_cost;
 
     // do init step stuff
     string steps("");
@@ -925,14 +928,6 @@ void do_algorithm_astar_search(SMap &original_map)
         steps = open_list.front();
         open_list.pop_front();
         ol_cost.pop_front();
-        int nu_size = steps.size();
-        // if(last_size != nu_size)
-        // {
-        //     last_size = nu_size;
-        //     cout<<"New size:"<<nu_size<<endl;
-        //     cout<<"Steps:"<<steps<<endl;
-        //     print_map(working_map);
-        // }
         // generate new state
         working_map = original_map;
         bool did_apply = apply_steps(working_map, steps);
@@ -958,17 +953,27 @@ void do_algorithm_astar_search(SMap &original_map)
             print_map(working_map);
         }
         // check and add to closed list
-        bool bused = false;
-        for(auto used : closed_list)
+        bool skip = false;
+        for(int i = 0; i < closed_list.size(); i++)
         {
-            if(used == working_map)
+            auto currect_from_closed = closed_list[i];
+            // if found match
+            if(currect_from_closed == working_map)
             {
-                bused = true;
+                skip = true;
+                int &current_closed_cost = cl_cost[i];
+                // if new has higher cost skip
+                if(cost < current_closed_cost)
+                {
+                    skip = false;
+                    current_closed_cost = cost;
+                }
                 break;
             }
         }
-        if(bused) continue;
+        if(skip) continue;
         closed_list.push_back(working_map);
+        cl_cost.push_back(cost);
 
         // insert these based on cost
         string up(steps);
