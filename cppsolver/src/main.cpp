@@ -29,6 +29,10 @@ string S_ROBOT("☺");
 string S_ROBOT_ON_GOAL("☻");
 string S_ROAD(" ");
 
+struct State {
+    SMap map;
+    string steps;
+};
 
 SMap read_map(string &map_path)
 {
@@ -466,10 +470,372 @@ int get_dist(vector<int> coord1, vector<int> coord2)
     return sqrt(pow(x1-x2,2) + pow(y1-y2,2));
 }
 
-int calc_cost(SMap &map, string steps, int slvd)
+int get_manhattan_dist(vector<int> coord1, vector<int> coord2)
+{
+    int x1 = coord1[0];
+    int x2 = coord2[0];
+    int y1 = coord1[1];
+    int y2 = coord2[2];
+    return abs(x1-x2) + abs(y1-y2);
+}
+
+/**
+ * Function is based on https://github.com/tonyling/skb-solver
+ */
+int check_dead(SMap &map, vector<vector<int>> cans)
+{
+    int dead = 0;
+    for (auto coords : cans)
+	{
+		bool N_wall = false;
+		bool E_wall = false;
+		bool S_wall = false;
+		bool W_wall = false;
+		bool in_corner = false;
+		
+		int cur_box_x = coords[0];
+		int cur_box_y = coords[1];
+		
+		//check if there is a wall north of the box
+		if (map[cur_box_y - 1][cur_box_x] == CHAR_WALL)
+			N_wall = true;
+		//check if there is a wall east of the box
+		if (map[cur_box_y][cur_box_x + 1] == CHAR_WALL)
+			E_wall = true;
+		//check if there is a wall south of the box
+		if (map[cur_box_y + 1][cur_box_x] == CHAR_WALL)
+			S_wall = true;
+		//check if there is a wall west of the box
+		if (map[cur_box_y][cur_box_x - 1] == CHAR_WALL)
+			W_wall = true;
+		
+		//first check if box is in a corner
+		//check if box in NE corner
+		if (N_wall && E_wall)
+		{
+			in_corner = true;
+		}
+		//check if box in NW corner
+		else if (N_wall && W_wall)
+		{
+			in_corner = true;
+		}
+		//check if box in SE corner
+		else if (S_wall && E_wall)
+		{
+			in_corner = true;
+		}
+		//check if box in SW corner
+		else if (S_wall && W_wall)
+		{
+			in_corner = true;
+		}
+		
+		//if box is ever in a corner, then box is in a deadlock position
+		if (in_corner)
+		{
+			dead++;
+		}
+		//if box is next to a wall, check to see if wall is unbroken with
+		//2 unsafe corners and no goals along the wall
+		else
+		{
+			//if wall north of box, search for and east-most and west-most wall
+			if (N_wall)
+			{
+				bool safe = false;
+				bool corner_E = false;
+				bool corner_W = false;
+				
+				//search east to see if there are accessible tiles along unbroken
+				//north walls until a corner is found.  boxes and players are ignored
+				//and considered accessible tiles since they can move
+				for (int i = cur_box_x + 1; i < map[cur_box_y].size(); i++)
+				{
+					//if goal is found along the way then it cannot be an unsafe position
+					if ((map[cur_box_y][i] == CHAR_GOAL) ||
+					 (map[cur_box_y][i] == CHAR_CAN_ON_GOAL) || (map[cur_box_y][i] == CHAR_ROBOT_ON_GOAL))
+					{
+						safe = true;
+						break;
+					}
+					
+					//if north tile is not a wall, then it is safe
+					if (map[cur_box_y - 1][i] != CHAR_WALL)
+					{
+						safe = true;
+						break;
+					}
+					
+					//if NE corner
+					if ((map[cur_box_y][i] == CHAR_WALL) && (map[cur_box_y - 1][i] == CHAR_WALL))
+					{
+						corner_E = true;
+						break;
+					}
+				}
+				
+				//search west to see if there are accessible tiles along unbroken
+				//north walls until a corner is found.  boxes and players are ignored
+				//and considered accessible tiles since they can move
+				for (int i = cur_box_x - 1; i >= 0 ; i--)
+				{
+					//if goal is found along the way then it cannot be an unsafe position
+					if ((map[cur_box_y][i] == CHAR_GOAL) ||
+					 (map[cur_box_y][i] == CHAR_CAN_ON_GOAL) || (map[cur_box_y][i] == CHAR_ROBOT_ON_GOAL))
+					{
+						safe = true;
+						break;
+					}
+					
+					//if north tile is not a wall, then it is safe
+					if (map[cur_box_y - 1][i] != CHAR_WALL)
+					{
+						safe = true;
+						break;
+					}
+					
+					//if NW corner
+					if ((map[cur_box_y][i] == CHAR_WALL) && (map[cur_box_y - 1][i] == CHAR_WALL))
+					{
+						corner_W = true;
+						break;
+					}
+				}
+				
+				//if unbroken wall along path east and west of the box to corners with any goal
+				//increment score to signify unsafe position
+				if (!safe)
+				{
+					if(corner_E && corner_W)
+						dead++;
+				}	
+			}
+			
+			//if wall north of box, search for and north-most and south-most wall
+			if (E_wall)
+			{
+				bool safe = false;
+				bool corner_N = false;
+				bool corner_S = false;
+				
+				//search north to see if there are accessible tiles along unbroken
+				//east walls until a corner is found.  boxes and players are ignored
+				//and considered accessible tiles since they can move
+				for (int i = cur_box_y - 1; i >=0; i--)
+				{
+					//if goal is found along the way then it cannot be an unsafe position
+					if ((map[i][cur_box_x] == CHAR_GOAL) ||
+					 (map[i][cur_box_x] == CHAR_CAN_ON_GOAL) || (map[i][cur_box_x] == CHAR_ROBOT_ON_GOAL))
+					{
+						safe = true;
+						break;
+					}
+					
+					//if east tile is not a wall, then it is safe
+					if (map[i][cur_box_x + 1] != CHAR_WALL)
+					{
+						safe = true;
+						break;
+					}
+					
+					//if NE corner
+					if ((map[i][cur_box_x] == CHAR_WALL) && (map[i][cur_box_x + 1] == CHAR_WALL))
+					{
+						corner_N = true;
+						break;
+					}
+				}
+				
+				//search south to see if there are accessible tiles along unbroken
+				//east walls until a corner is found.  boxes and players are ignored
+				//and considered accessible tiles since they can move
+				for (int i = cur_box_y + 1; i < map.size(); i++)
+				{
+					//if goal is found along the way then it cannot be an unsafe position
+					if ((map[i][cur_box_x] == CHAR_GOAL) ||
+					 (map[i][cur_box_x] == CHAR_CAN_ON_GOAL) || (map[i][cur_box_x] == CHAR_ROBOT_ON_GOAL))
+					{
+						safe = true;
+						break;
+					}
+					
+					//if east tile is not a wall, then it is safe
+					if (map[i][cur_box_x + 1] != CHAR_WALL)
+					{
+						safe = true;
+						break;
+					}
+					
+					//if SE corner
+					if ((map[i][cur_box_x] == CHAR_WALL) && (map[i][cur_box_x + 1] == CHAR_WALL))
+					{
+						corner_S = true;
+						break;
+					}
+				}
+				
+				//if unbroken wall along path east and west of the box to corners with any goal
+				//increment score to signify unsafe position
+				if (!safe)
+				{
+					if(corner_N && corner_S)
+						dead++;
+				}	
+			}
+			
+			//if wall south of box, search for and east-most and west-most wall
+			if (S_wall)
+			{
+				bool safe = false;
+				bool corner_E = false;
+				bool corner_W = false;
+				
+				//search east to see if there are accessible tiles along unbroken
+				//south walls until a corner is found.  boxes and players are ignored
+				//and considered accessible tiles since they can move
+				for (int i = cur_box_x + 1; i < map[cur_box_y].size(); i++)
+				{
+					//if goal is found along the way then it cannot be an unsafe position
+					if ((map[cur_box_y][i] == CHAR_GOAL) ||
+					 (map[cur_box_y][i] == CHAR_CAN_ON_GOAL) || (map[cur_box_y][i] == CHAR_ROBOT_ON_GOAL))
+					{
+						safe = true;
+						break;
+					}
+					
+					//if south tile is not a wall, then it is safe
+					if (map[cur_box_y + 1][i] != CHAR_WALL)
+					{
+						safe = true;
+						break;
+					}
+					
+					//if SE corner
+					if ((map[cur_box_y][i] == CHAR_WALL) && (map[cur_box_y + 1][i] == CHAR_WALL))
+					{
+						corner_E = true;
+						break;
+					}
+				}
+				
+				//search west to see if there are accessible tiles along unbroken
+				//south walls until a corner is found.  boxes and players are ignored
+				//and considered accessible tiles since they can move
+				for (int i = cur_box_x - 1; i >= 0 ; i--)
+				{
+					//if goal is found along the way then it cannot be an unsafe position
+					if ((map[cur_box_y][i] == CHAR_GOAL) ||
+					 (map[cur_box_y][i] == CHAR_CAN_ON_GOAL) || (map[cur_box_y][i] == CHAR_ROBOT_ON_GOAL))
+					{
+						safe = true;
+						break;
+					}
+					
+					//if south tile is not a wall, then it is safe
+					if (map[cur_box_y + 1][i] != CHAR_WALL)
+					{
+						safe = true;
+						break;
+					}
+					
+					//if SW corner
+					if ((map[cur_box_y][i] == CHAR_WALL) && (map[cur_box_y + 1][i] == CHAR_WALL))
+					{
+						corner_W = true;
+						break;
+					}
+				}
+				
+				//if unbroken wall along path east and west of the box to corners with any goal
+				//increment score to signify unsafe position
+				if (!safe)
+				{
+					if(corner_E && corner_W)
+						dead++;
+				}	
+			}
+			
+			//if wall north of box, search for and north-most and south-most wall
+			if (W_wall)
+			{
+				bool safe = false;
+				bool corner_N = false;
+				bool corner_S = false;
+				
+				//search north to see if there are accessible tiles along unbroken
+				//east walls until a corner is found.  boxes and players are ignored
+				//and considered accessible tiles since they can move
+				for (int i = cur_box_y - 1; i >=0; i--)
+				{
+					//if goal is found along the way then it cannot be an unsafe position
+					if ((map[i][cur_box_x] == CHAR_GOAL) ||
+					 (map[i][cur_box_x] == CHAR_CAN_ON_GOAL) || (map[i][cur_box_x] == CHAR_ROBOT_ON_GOAL))
+					{
+						safe = true;
+						break;
+					}
+					
+					//if east tile is not a wall, then it is safe
+					if (map[i][cur_box_x - 1] != CHAR_WALL)
+					{
+						safe = true;
+						break;
+					}
+					
+					//if NW corner
+					if ((map[i][cur_box_x] == CHAR_WALL) && (map[i][cur_box_x - 1] == CHAR_WALL))
+					{
+						corner_N = true;
+						break;
+					}
+				}
+				
+				//search south to see if there are accessible tiles along unbroken
+				//east walls until a corner is found.  boxes and players are ignored
+				//and considered accessible tiles since they can move
+				for (int i = cur_box_y + 1; i < map.size(); i++)
+				{
+					//if goal is found along the way then it cannot be an unsafe position
+					if ((map[i][cur_box_x] == CHAR_GOAL) ||
+					 (map[i][cur_box_x] == CHAR_CAN_ON_GOAL) || (map[i][cur_box_x] == CHAR_ROBOT_ON_GOAL))
+					{
+						safe = true;
+						break;
+					}
+					
+					//if east tile is not a wall, then it is safe
+					if (map[i][cur_box_x - 1] != CHAR_WALL)
+					{
+						safe = true;
+						break;
+					}
+					
+					//if SW corner
+					if ((map[i][cur_box_x] == CHAR_WALL) && (map[i][cur_box_x - 1] == CHAR_WALL))
+					{
+						corner_S = true;
+						break;
+					}
+				}
+				
+				//if unbroken wall along path east and west of the box to corners with any goal
+				//increment score to signify unsafe position
+				if (!safe)
+				{
+					if(corner_N && corner_S)
+						dead++;
+				}	
+			}
+		}
+	}
+	return dead;
+}
+
+int calc_cost(SMap &map, string steps)
 {
     // solution point and steps size added
-    int cost = 50 * slvd + steps.size() *5;
+    int cost = 0;
 
     vector<int> robo_pos;
     vector<vector<int>> goals;
@@ -496,11 +862,16 @@ int calc_cost(SMap &map, string steps, int slvd)
             }
         }
     }
+    int dead = check_dead(map, cans);
+    if(dead>0)
+    {
+        return -1;
+    }
     int least_robo_can_dist = 99999999;
     for(auto ccoord : cans)
     {
         // robot distance
-        int dist = get_dist(robo_pos, ccoord);
+        int dist = get_manhattan_dist(robo_pos, ccoord);
         if(dist < least_robo_can_dist)
         {
             least_robo_can_dist = dist;
@@ -509,7 +880,7 @@ int calc_cost(SMap &map, string steps, int slvd)
         int best = 99999999;
         for(auto gcoord : goals)
         {
-            int dist = get_dist(ccoord, gcoord);
+            dist = get_manhattan_dist(ccoord, gcoord);
             if(dist < best)
             {
                 best = dist;
@@ -517,17 +888,17 @@ int calc_cost(SMap &map, string steps, int slvd)
         }
         cost += best;
         // blocking surroundings
-        for(char c : "lrud")
-        {
-            auto bes_coord = get_next_coord(ccoord, c);
-            char b = whats_here(map, bes_coord);
-            if(b == CHAR_CAN || b == CHAR_CAN_ON_GOAL || b == CHAR_WALL)
-            {
-                cost++;
-            }
-        }
+        // for(char c : "lrud")
+        // {
+        //     auto bes_coord = get_next_coord(ccoord, c);
+        //     char b = whats_here(map, bes_coord);
+        //     if(b == CHAR_CAN || b == CHAR_CAN_ON_GOAL || b == CHAR_WALL)
+        //     {
+        //         cost++;
+        //     }
+        // }
     }
-    cost += least_robo_can_dist * 2;
+    cost += least_robo_can_dist;
 
     return cost;
 }
@@ -566,16 +937,18 @@ void do_algorithm_astar_search(SMap &original_map)
         working_map = original_map;
         bool did_apply = apply_steps(working_map, steps);
         if(did_apply == false) continue;
+        // get cost
+        int cost = calc_cost(working_map, steps);
+        if(cost == -1)
+        {
+            continue;
+        }
         // check if solution
-        int slvd = check_solved(working_map);
-
-        if(slvd == 0)
+        if(cost == 0)
         {
             cout << "Solution found:" << steps << endl;
             break;
         }
-        // get cost
-        int cost = calc_cost(working_map, steps, slvd);
         // print
         if(cost < best_cost)
         {
